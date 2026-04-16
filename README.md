@@ -83,3 +83,23 @@ Auth and CMS content are stored in Postgres, so they persist correctly across se
 3. Set all environment variables.
 4. Run `npm run admin:create -- <username> <password>` in deployment environment.
 5. Use `/auth/login` to access back office.
+
+## CI/CD (GitHub Actions + Vercel)
+
+This repository includes an automated Vercel pipeline at `.github/workflows/vercel-deploy.yml`:
+
+- Pull requests to `main`: build and deploy a Preview environment.
+- Pushes to `main`: build and deploy Production.
+
+Add these GitHub repository secrets before running the workflow:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+How to get them:
+
+1. `VERCEL_TOKEN`: Vercel Dashboard -> Settings -> Tokens -> Create Token.
+2. `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`: run `vercel link` locally, then read `.vercel/project.json`.
+
+After adding secrets, push to `main` or open a PR to trigger deployment.
