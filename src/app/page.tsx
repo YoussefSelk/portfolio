@@ -86,11 +86,20 @@ export async function generateMetadata(): Promise<Metadata> {
       description: `${site.heroHeadline}`,
       url: siteUrl,
       type: "website",
+      images: [
+        {
+          url: `${siteUrl}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: `${site.fullName} - Official Portfolio`,
+        },
+      ],
     },
     twitter: {
       card: "summary",
       title: `${site.fullName} | Official Portfolio`,
       description: `${site.heroHeadline}`,
+      images: [`${siteUrl}/twitter-image`],
     },
   };
 }

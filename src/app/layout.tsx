@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/og-image.svg",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "Youssef Selk - Official Portfolio",
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     title: "Youssef Selk | Software Engineering Portfolio",
     description:
       "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
-    images: ["/og-image.svg"],
+    images: ["/twitter-image"],
   },
   icons: {
     icon: "/favicon.svg",
