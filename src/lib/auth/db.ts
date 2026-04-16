@@ -1,9 +1,6 @@
 import "server-only";
 
-import { existsSync, mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
-
-import Database from "better-sqlite3";
+import { Pool } from "pg";
 
 type AdminUserRow = {
   id: number;
@@ -12,87 +9,111 @@ type AdminUserRow = {
   is_active: number;
 };
 
-let dbInstance: Database.Database | null = null;
+let poolInstance: Pool | null = null;
+let adminSchemaReady: Promise<void> | null = null;
 
-function getDbPath() {
-  const configuredName = process.env.ADMIN_DB_PATH?.trim();
-  const safeFileName = configuredName
-    ? configuredName.replace(/^[./\\]+/, "")
-    : "auth.db";
+function getDatabaseUrl() {
+  const value =
+    process.env.DATABASE_URL?.trim() ||
+    process.env.POSTGRES_URL?.trim() ||
+    process.env.POSTGRES_PRISMA_URL?.trim() ||
+    process.env.POSTGRES_URL_NON_POOLING?.trim();
 
-  return join(process.cwd(), "data", safeFileName);
+  if (!value) {
+    throw new Error(
+      "Missing Postgres connection string. Set DATABASE_URL or POSTGRES_URL.",
+    );
+  }
+
+  try {
+    const normalizedUrl = new URL(value);
+    const sslMode = normalizedUrl.searchParams.get("sslmode");
+
+    if (!sslMode || sslMode === "require") {
+      normalizedUrl.searchParams.set("sslmode", "no-verify");
+    }
+
+    return normalizedUrl.toString();
+  } catch {
+    return value;
+  }
 }
 
-function initializeDatabase(db: Database.Database) {
-  db.exec(`
+function getPool() {
+  if (poolInstance) {
+    return poolInstance;
+  }
+
+  poolInstance = new Pool({
+    connectionString: getDatabaseUrl(),
+    ssl: { rejectUnauthorized: false },
+    max: 5,
+  });
+
+  return poolInstance;
+}
+
+async function ensureAdminSchema() {
+  if (adminSchemaReady) {
+    return adminSchemaReady;
+  }
+
+  adminSchemaReady = (async () => {
+    const pool = getPool();
+
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS admin_users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id BIGSERIAL PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
 
-  db.exec(
-    "CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username);",
+    await pool.query(
+      "CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username);",
+    );
+  })();
+
+  return adminSchemaReady;
+}
+
+export async function findAdminUserByUsername(username: string) {
+  await ensureAdminSchema();
+
+  const { rows } = await getPool().query<AdminUserRow>(
+    "SELECT id::int AS id, username, password_hash, is_active FROM admin_users WHERE username = $1 LIMIT 1",
+    [username],
   );
+
+  return rows[0];
 }
 
-export function getAuthDb() {
-  if (dbInstance) {
-    return dbInstance;
-  }
+export async function findAdminUserById(id: number) {
+  await ensureAdminSchema();
 
-  const dbPath = getDbPath();
-  const dir = dirname(dbPath);
+  const { rows } = await getPool().query<AdminUserRow>(
+    "SELECT id::int AS id, username, password_hash, is_active FROM admin_users WHERE id = $1 LIMIT 1",
+    [id],
+  );
 
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-
-  const db = new Database(dbPath);
-
-  db.pragma("journal_mode = WAL");
-  db.pragma("foreign_keys = ON");
-
-  initializeDatabase(db);
-
-  dbInstance = db;
-
-  return db;
+  return rows[0];
 }
 
-export function findAdminUserByUsername(username: string) {
-  const db = getAuthDb();
-  return db
-    .prepare(
-      "SELECT id, username, password_hash, is_active FROM admin_users WHERE username = ? LIMIT 1",
-    )
-    .get(username) as AdminUserRow | undefined;
-}
+export async function upsertAdminUser(username: string, passwordHash: string) {
+  await ensureAdminSchema();
 
-export function findAdminUserById(id: number) {
-  const db = getAuthDb();
-  return db
-    .prepare(
-      "SELECT id, username, password_hash, is_active FROM admin_users WHERE id = ? LIMIT 1",
-    )
-    .get(id) as AdminUserRow | undefined;
-}
-
-export function upsertAdminUser(username: string, passwordHash: string) {
-  const db = getAuthDb();
-
-  db.prepare(
+  await getPool().query(
     `
       INSERT INTO admin_users (username, password_hash, is_active)
-      VALUES (?, ?, 1)
+      VALUES ($1, $2, 1)
       ON CONFLICT(username) DO UPDATE SET
-        password_hash = excluded.password_hash,
+        password_hash = EXCLUDED.password_hash,
         is_active = 1,
-        updated_at = CURRENT_TIMESTAMP
+        updated_at = NOW()
     `,
-  ).run(username, passwordHash);
+    [username, passwordHash],
+  );
 }

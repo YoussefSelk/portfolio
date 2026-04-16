@@ -12,7 +12,7 @@ import type { PortfolioContent } from "@/lib/types";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-  if (!getAuthenticatedAdminFromRequest(request)) {
+  if (!(await getAuthenticatedAdminFromRequest(request))) {
     return NextResponse.json(
       { ok: false, message: "Not Found" },
       { status: 404 },
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!getAuthenticatedAdminFromRequest(request)) {
+  if (!(await getAuthenticatedAdminFromRequest(request))) {
     return NextResponse.json(
       { ok: false, message: "Not Found" },
       { status: 404 },
@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest) {
         {
           ok: false,
           message:
-            "Storage is not writable in this deployment environment. This CMS uses local files and needs persistent writable disk.",
+            "Database write failed. Verify Supabase/Postgres credentials and permissions.",
         },
         { status: 503 },
       );

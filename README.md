@@ -7,13 +7,12 @@ Professional portfolio inspired by The Verge style, with a **fully custom privat
 - Next.js 16 (App Router, TypeScript)
 - Tailwind CSS v4
 - Custom Admin CMS (`/admin`)
-- SQLite auth database (`data/auth.db`)
-- File-based content store (`data/portfolio-content.json`)
+- Supabase Postgres auth/content storage
 
 ## Features
 
 - Hidden back-office route: unauthenticated `/admin` returns `404`
-- SQLite-backed admin users table
+- Postgres-backed admin users table
 - Password hashing with scrypt
 - Signed HTTP-only session cookie auth
 - Private API for content updates
@@ -31,10 +30,12 @@ Professional portfolio inspired by The Verge style, with a **fully custom privat
 Copy `.env.example` to `.env.local` and set:
 
 - `NEXT_PUBLIC_SITE_URL` (example: `http://localhost:3000`)
-- `ADMIN_DB_PATH` (filename only, default: `auth.db`, stored under `data/`)
+- `DATABASE_URL` (Supabase/Postgres connection string)
 - `ADMIN_SESSION_SECRET` (long random string, required in production)
 - `ADMIN_BOOTSTRAP_USERNAME` (optional for script)
 - `ADMIN_BOOTSTRAP_PASSWORD` (optional for script)
+- `SUPABASE_URL` (optional, for client-side Supabase usage)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (optional, for client-side Supabase usage)
 
 ## Create admin user
 
@@ -73,15 +74,12 @@ Open:
 
 ## Persistence note
 
-Content is stored in `data/portfolio-content.json` and auth in `data/auth.db`.
-
-- Works great locally and on traditional Node hosting with persistent disk.
-- On serverless/ephemeral filesystems, file writes may not persist.
+Auth and CMS content are stored in Postgres, so they persist correctly across serverless instances.
 
 ## Deployment
 
 1. Push repo to GitHub.
 2. Deploy on your host/Vercel.
 3. Set all environment variables.
-4. Run `npm run admin:create -- <username> <password>` in deployment environment (or before first run if persistent disk).
+4. Run `npm run admin:create -- <username> <password>` in deployment environment.
 5. Use `/auth/login` to access back office.

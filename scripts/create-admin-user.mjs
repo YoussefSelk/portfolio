@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import "dotenv/config";
+
 import { randomBytes, scryptSync } from "node:crypto";
 
-import Database from "better-sqlite3";
+import { Pool } from "pg";
 
 function hashPassword(password) {
   const salt = randomBytes(16).toString("base64url");
@@ -13,9 +13,37 @@ function hashPassword(password) {
 const username = process.argv[2] || process.env.ADMIN_BOOTSTRAP_USERNAME;
 const password = process.argv[3] || process.env.ADMIN_BOOTSTRAP_PASSWORD;
 
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL_NON_POOLING;
+
+function normalizeDatabaseUrl(value) {
+  try {
+    const parsed = new URL(value);
+    const sslMode = parsed.searchParams.get("sslmode");
+
+    if (!sslMode || sslMode === "require") {
+      parsed.searchParams.set("sslmode", "no-verify");
+    }
+
+    return parsed.toString();
+  } catch {
+    return value;
+  }
+}
+
 if (!username || !password) {
   console.error(
     "Usage: npm run admin:create -- <username> <password>\nOr set ADMIN_BOOTSTRAP_USERNAME and ADMIN_BOOTSTRAP_PASSWORD env vars.",
+  );
+  process.exit(1);
+}
+
+if (!databaseUrl) {
+  console.error(
+    "Missing Postgres connection string. Set DATABASE_URL or POSTGRES_URL.",
   );
   process.exit(1);
 }
@@ -25,39 +53,38 @@ if (String(password).length < 10) {
   process.exit(1);
 }
 
-const configuredName = process.env.ADMIN_DB_PATH?.trim();
-const safeFileName = configuredName
-  ? configuredName.replace(/^[./\\]+/, "")
-  : "auth.db";
-const dbPath = join(process.cwd(), "data", safeFileName);
-const dir = dirname(dbPath);
+const pool = new Pool({
+  connectionString: normalizeDatabaseUrl(databaseUrl),
+  ssl: { rejectUnauthorized: false },
+});
 
-if (!existsSync(dir)) {
-  mkdirSync(dir, { recursive: true });
-}
+try {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      id BIGSERIAL PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
 
-const db = new Database(dbPath);
+  const passwordHash = hashPassword(String(password));
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS admin_users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    is_active INTEGER NOT NULL DEFAULT 1,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  await pool.query(
+    `
+      INSERT INTO admin_users (username, password_hash, is_active)
+      VALUES ($1, $2, 1)
+      ON CONFLICT(username) DO UPDATE SET
+        password_hash = EXCLUDED.password_hash,
+        is_active = 1,
+        updated_at = NOW()
+    `,
+    [String(username), passwordHash],
   );
-`);
 
-const passwordHash = hashPassword(String(password));
-
-db.prepare(`
-  INSERT INTO admin_users (username, password_hash, is_active)
-  VALUES (?, ?, 1)
-  ON CONFLICT(username) DO UPDATE SET
-    password_hash = excluded.password_hash,
-    is_active = 1,
-    updated_at = CURRENT_TIMESTAMP
-`).run(String(username), passwordHash);
-
-console.log(`Admin user '${username}' created/updated successfully at ${dbPath}`);
+  console.log(`Admin user '${username}' created/updated successfully in Postgres`);
+} finally {
+  await pool.end();
+}

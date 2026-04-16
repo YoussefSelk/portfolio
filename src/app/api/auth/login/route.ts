@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const user = findAdminUserByUsername(username);
+  const user = await findAdminUserByUsername(username);
 
   if (!user || user.is_active !== 1) {
     return NextResponse.json(

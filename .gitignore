@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# runtime data artifacts (migrated to Postgres/Supabase)
+/data/*
+
 # vercel
 .vercel
 

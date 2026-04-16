@@ -246,7 +246,7 @@ export function AdminCms({
 
         if (response.status === 404) {
           setMessage(
-            "Session invalid or expired. Please log in again. If this happens on Vercel, local DB persistence may be missing.",
+            "Session invalid or expired. Please log in again.",
           );
           return;
         }
