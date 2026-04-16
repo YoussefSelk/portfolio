@@ -32,8 +32,7 @@ export const fallbackPortfolioContent: PortfolioContent = {
     contactTitle: "Let’s Build Something Serious",
     contactDescription:
       "I’m interested in backend-heavy and full-stack opportunities where I can contribute quickly, learn from strong teams, and ship meaningful features.",
-    footerText:
-      "Focused on secure, scalable products and measurable outcomes.",
+    footerText: "Made by Youssef Selk",
     socialLinks: [
       { label: "GitHub", url: "https://github.com/YoussefSelk" },
       {

@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | Youssef Selk",
   },
   description:
-    "Official website and portfolio of Youssef Selk, software engineering student and full-stack developer.",
+    "Official website and portfolio of Youssef Selk, full-stack developer interested in AI, Data, and secure software systems.",
   applicationName: "Youssef Selk Portfolio",
   keywords: [
     "Youssef Selk",
@@ -43,6 +43,10 @@ export const metadata: Metadata = {
     "YoussefSelk",
     "Software Engineer",
     "Full-Stack Developer",
+    "AI Engineer",
+    "Machine Learning",
+    "Data Engineering",
+    "Data Science",
     "Portfolio",
   ],
   authors: [{ name: "Youssef Selk", url: siteUrl }],
