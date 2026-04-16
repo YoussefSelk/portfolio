@@ -20,10 +20,9 @@ const mono = Space_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://example.com").replace(
-  /\/$/,
-  "",
-);
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+).replace(/\/$/, "");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
