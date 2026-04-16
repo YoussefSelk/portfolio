@@ -84,7 +84,9 @@ try {
     [String(username), passwordHash],
   );
 
-  console.log(`Admin user '${username}' created/updated successfully in Postgres`);
+  console.log(
+    `Admin user '${username}' created/updated successfully in Postgres`,
+  );
 } finally {
   await pool.end();
 }

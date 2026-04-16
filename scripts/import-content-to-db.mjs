@@ -30,7 +30,9 @@ function normalizeDatabaseUrl(value) {
 }
 
 if (!databaseUrl) {
-  console.error("Missing Postgres connection string. Set DATABASE_URL or POSTGRES_URL.");
+  console.error(
+    "Missing Postgres connection string. Set DATABASE_URL or POSTGRES_URL.",
+  );
   process.exit(1);
 }
 

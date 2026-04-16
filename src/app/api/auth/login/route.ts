@@ -50,11 +50,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const token = createSessionToken({ userId: user.id, username: user.username });
+  const token = createSessionToken({
+    userId: user.id,
+    username: user.username,
+  });
 
   const response = NextResponse.json({ ok: true });
 
-  response.cookies.set(getSessionCookieName(), token, getSessionCookieOptions());
+  response.cookies.set(
+    getSessionCookieName(),
+    token,
+    getSessionCookieOptions(),
+  );
 
   return response;
 }

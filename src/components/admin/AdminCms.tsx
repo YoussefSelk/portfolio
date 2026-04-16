@@ -245,9 +245,7 @@ export function AdminCms({
         }
 
         if (response.status === 404) {
-          setMessage(
-            "Session invalid or expired. Please log in again.",
-          );
+          setMessage("Session invalid or expired. Please log in again.");
           return;
         }
 
