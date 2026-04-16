@@ -109,7 +109,10 @@ function validateContent(content: PortfolioContent) {
     .map(({ index }) => `Global: Social link #${index + 1} is incomplete.`);
   issues.push(...socialIssues);
 
-  const orderGroups: Array<{ label: string; items: { order: number; _id: string }[] }> = [
+  const orderGroups: Array<{
+    label: string;
+    items: { order: number; _id: string }[];
+  }> = [
     { label: "Experience", items: content.experiences },
     { label: "Education", items: content.education },
     { label: "Projects", items: content.projects },
@@ -180,7 +183,11 @@ function previewAnchorForTab(tab: TabKey) {
   }
 }
 
-export function AdminCms({ initialContent }: { initialContent: PortfolioContent }) {
+export function AdminCms({
+  initialContent,
+}: {
+  initialContent: PortfolioContent;
+}) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>("site");
   const [content, setContent] = useState<PortfolioContent>(initialContent);
@@ -188,8 +195,8 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
   const [message, setMessage] = useState<string | null>(null);
   const [previewTick, setPreviewTick] = useState(0);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
-  const [baselineSnapshot, setBaselineSnapshot] = useState(
-    () => JSON.stringify(initialContent),
+  const [baselineSnapshot, setBaselineSnapshot] = useState(() =>
+    JSON.stringify(initialContent),
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -228,7 +235,23 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
       });
 
       if (!response.ok) {
-        setMessage("Failed to save. Please check credentials and try again.");
+        let apiMessage: string | undefined;
+
+        try {
+          const payload = (await response.json()) as { message?: string };
+          apiMessage = payload.message;
+        } catch {
+          apiMessage = undefined;
+        }
+
+        if (response.status === 404) {
+          setMessage(
+            "Session invalid or expired. Please log in again. If this happens on Vercel, local DB persistence may be missing.",
+          );
+          return;
+        }
+
+        setMessage(apiMessage ?? "Failed to save due to a server error.");
         return;
       }
 
@@ -354,7 +377,10 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
     }
   }
 
-  function updateSite<K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) {
+  function updateSite<K extends keyof SiteSettings>(
+    key: K,
+    value: SiteSettings[K],
+  ) {
     setContent((prev) => ({
       ...prev,
       site: {
@@ -376,10 +402,15 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
         <header className="rounded-2xl border border-white/20 bg-[#16181b] p-3 sm:p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[#78ffe0]">Private Admin</p>
-              <h1 className="text-xl font-bold sm:text-2xl">Custom Portfolio CMS</h1>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#78ffe0]">
+                Private Admin
+              </p>
+              <h1 className="text-xl font-bold sm:text-2xl">
+                Custom Portfolio CMS
+              </h1>
               <p className="text-sm text-zinc-300">
-                Edit content on the left. Use preview on the right to see placement instantly.
+                Edit content on the left. Use preview on the right to see
+                placement instantly.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -436,7 +467,9 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
               </button>
             </div>
           </div>
-          {message ? <p className="mt-3 text-sm text-[#b6fbe6]">{message}</p> : null}
+          {message ? (
+            <p className="mt-3 text-sm text-[#b6fbe6]">{message}</p>
+          ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[0.72rem] uppercase tracking-[0.12em]">
             <span
               className={`rounded-full border px-3 py-1 ${
@@ -454,10 +487,15 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
                   : "border-emerald-300/50 text-emerald-200"
               }`}
             >
-              Validation {validationIssues.length > 0 ? `(${validationIssues.length})` : "(0)"}
+              Validation{" "}
+              {validationIssues.length > 0
+                ? `(${validationIssues.length})`
+                : "(0)"}
             </span>
             <span className="rounded-full border border-white/30 px-3 py-1 text-zinc-200">
-              {lastSavedAt ? `Last save: ${lastSavedAt}` : "Not saved in this session"}
+              {lastSavedAt
+                ? `Last save: ${lastSavedAt}`
+                : "Not saved in this session"}
             </span>
             <span className="rounded-full border border-white/20 px-3 py-1 text-zinc-400">
               Ctrl/Cmd + S to save
@@ -503,28 +541,36 @@ export function AdminCms({ initialContent }: { initialContent: PortfolioContent 
             {activeTab === "experience" ? (
               <ExperienceTab
                 items={content.experiences}
-                onChange={(items) => setContent((prev) => ({ ...prev, experiences: items }))}
+                onChange={(items) =>
+                  setContent((prev) => ({ ...prev, experiences: items }))
+                }
               />
             ) : null}
 
             {activeTab === "education" ? (
               <EducationTab
                 items={content.education}
-                onChange={(items) => setContent((prev) => ({ ...prev, education: items }))}
+                onChange={(items) =>
+                  setContent((prev) => ({ ...prev, education: items }))
+                }
               />
             ) : null}
 
             {activeTab === "projects" ? (
               <ProjectsTab
                 items={content.projects}
-                onChange={(items) => setContent((prev) => ({ ...prev, projects: items }))}
+                onChange={(items) =>
+                  setContent((prev) => ({ ...prev, projects: items }))
+                }
               />
             ) : null}
 
             {activeTab === "skills" ? (
               <SkillsTab
                 items={content.skillGroups}
-                onChange={(items) => setContent((prev) => ({ ...prev, skillGroups: items }))}
+                onChange={(items) =>
+                  setContent((prev) => ({ ...prev, skillGroups: items }))
+                }
               />
             ) : null}
 
@@ -564,32 +610,141 @@ function SiteTab({
 }) {
   return (
     <div className="space-y-4">
-      <Field label="Full Name" value={content.fullName} onChange={(v) => updateSite("fullName", v)} />
-      <Field label="Role" value={content.role} onChange={(v) => updateSite("role", v)} />
-      <Field label="Hero Kicker" value={content.heroKicker} onChange={(v) => updateSite("heroKicker", v)} />
-      <Field label="Hero Headline" value={content.heroHeadline} onChange={(v) => updateSite("heroHeadline", v)} />
-      <Area label="Hero Description" value={content.heroDescription} onChange={(v) => updateSite("heroDescription", v)} rows={3} />
-      <Area label="Availability" value={content.availability} onChange={(v) => updateSite("availability", v)} rows={2} />
-      <Field label="Location" value={content.location} onChange={(v) => updateSite("location", v)} />
-      <Field label="Email" value={content.email} onChange={(v) => updateSite("email", v)} />
-      <Field label="Phone" value={content.phone} onChange={(v) => updateSite("phone", v)} />
-      <Field label="LinkedIn URL" value={content.linkedinUrl} onChange={(v) => updateSite("linkedinUrl", v)} />
-      <Field label="GitHub URL" value={content.githubUrl} onChange={(v) => updateSite("githubUrl", v)} />
-      <Field label="CV URL" value={content.cvUrl} onChange={(v) => updateSite("cvUrl", v)} />
-      <Field label="Primary CTA Label" value={content.landingPrimaryCtaLabel} onChange={(v) => updateSite("landingPrimaryCtaLabel", v)} />
-      <Field label="Primary CTA URL" value={content.landingPrimaryCtaUrl} onChange={(v) => updateSite("landingPrimaryCtaUrl", v)} />
-      <Field label="Secondary CTA Label" value={content.landingSecondaryCtaLabel} onChange={(v) => updateSite("landingSecondaryCtaLabel", v)} />
-      <Field label="Secondary CTA URL" value={content.landingSecondaryCtaUrl} onChange={(v) => updateSite("landingSecondaryCtaUrl", v)} />
-      <Field label="About Title" value={content.aboutTitle} onChange={(v) => updateSite("aboutTitle", v)} />
-      <Area label="About Paragraph One" value={content.aboutParagraphOne} onChange={(v) => updateSite("aboutParagraphOne", v)} rows={3} />
-      <Area label="About Paragraph Two" value={content.aboutParagraphTwo} onChange={(v) => updateSite("aboutParagraphTwo", v)} rows={3} />
-      <Field label="Timeline Title" value={content.timelineTitle} onChange={(v) => updateSite("timelineTitle", v)} />
-      <Field label="Projects Title" value={content.projectsTitle} onChange={(v) => updateSite("projectsTitle", v)} />
-      <Field label="Skills Title" value={content.skillsTitle} onChange={(v) => updateSite("skillsTitle", v)} />
-      <Field label="Certifications Title" value={content.certificationsTitle} onChange={(v) => updateSite("certificationsTitle", v)} />
-      <Field label="Contact Title" value={content.contactTitle} onChange={(v) => updateSite("contactTitle", v)} />
-      <Area label="Contact Description" value={content.contactDescription} onChange={(v) => updateSite("contactDescription", v)} rows={3} />
-      <Field label="Footer Text" value={content.footerText} onChange={(v) => updateSite("footerText", v)} />
+      <Field
+        label="Full Name"
+        value={content.fullName}
+        onChange={(v) => updateSite("fullName", v)}
+      />
+      <Field
+        label="Role"
+        value={content.role}
+        onChange={(v) => updateSite("role", v)}
+      />
+      <Field
+        label="Hero Kicker"
+        value={content.heroKicker}
+        onChange={(v) => updateSite("heroKicker", v)}
+      />
+      <Field
+        label="Hero Headline"
+        value={content.heroHeadline}
+        onChange={(v) => updateSite("heroHeadline", v)}
+      />
+      <Area
+        label="Hero Description"
+        value={content.heroDescription}
+        onChange={(v) => updateSite("heroDescription", v)}
+        rows={3}
+      />
+      <Area
+        label="Availability"
+        value={content.availability}
+        onChange={(v) => updateSite("availability", v)}
+        rows={2}
+      />
+      <Field
+        label="Location"
+        value={content.location}
+        onChange={(v) => updateSite("location", v)}
+      />
+      <Field
+        label="Email"
+        value={content.email}
+        onChange={(v) => updateSite("email", v)}
+      />
+      <Field
+        label="Phone"
+        value={content.phone}
+        onChange={(v) => updateSite("phone", v)}
+      />
+      <Field
+        label="LinkedIn URL"
+        value={content.linkedinUrl}
+        onChange={(v) => updateSite("linkedinUrl", v)}
+      />
+      <Field
+        label="GitHub URL"
+        value={content.githubUrl}
+        onChange={(v) => updateSite("githubUrl", v)}
+      />
+      <Field
+        label="CV URL"
+        value={content.cvUrl}
+        onChange={(v) => updateSite("cvUrl", v)}
+      />
+      <Field
+        label="Primary CTA Label"
+        value={content.landingPrimaryCtaLabel}
+        onChange={(v) => updateSite("landingPrimaryCtaLabel", v)}
+      />
+      <Field
+        label="Primary CTA URL"
+        value={content.landingPrimaryCtaUrl}
+        onChange={(v) => updateSite("landingPrimaryCtaUrl", v)}
+      />
+      <Field
+        label="Secondary CTA Label"
+        value={content.landingSecondaryCtaLabel}
+        onChange={(v) => updateSite("landingSecondaryCtaLabel", v)}
+      />
+      <Field
+        label="Secondary CTA URL"
+        value={content.landingSecondaryCtaUrl}
+        onChange={(v) => updateSite("landingSecondaryCtaUrl", v)}
+      />
+      <Field
+        label="About Title"
+        value={content.aboutTitle}
+        onChange={(v) => updateSite("aboutTitle", v)}
+      />
+      <Area
+        label="About Paragraph One"
+        value={content.aboutParagraphOne}
+        onChange={(v) => updateSite("aboutParagraphOne", v)}
+        rows={3}
+      />
+      <Area
+        label="About Paragraph Two"
+        value={content.aboutParagraphTwo}
+        onChange={(v) => updateSite("aboutParagraphTwo", v)}
+        rows={3}
+      />
+      <Field
+        label="Timeline Title"
+        value={content.timelineTitle}
+        onChange={(v) => updateSite("timelineTitle", v)}
+      />
+      <Field
+        label="Projects Title"
+        value={content.projectsTitle}
+        onChange={(v) => updateSite("projectsTitle", v)}
+      />
+      <Field
+        label="Skills Title"
+        value={content.skillsTitle}
+        onChange={(v) => updateSite("skillsTitle", v)}
+      />
+      <Field
+        label="Certifications Title"
+        value={content.certificationsTitle}
+        onChange={(v) => updateSite("certificationsTitle", v)}
+      />
+      <Field
+        label="Contact Title"
+        value={content.contactTitle}
+        onChange={(v) => updateSite("contactTitle", v)}
+      />
+      <Area
+        label="Contact Description"
+        value={content.contactDescription}
+        onChange={(v) => updateSite("contactDescription", v)}
+        rows={3}
+      />
+      <Field
+        label="Footer Text"
+        value={content.footerText}
+        onChange={(v) => updateSite("footerText", v)}
+      />
 
       <SimpleObjectArrayEditor
         title="Stats"
@@ -598,8 +753,16 @@ function SiteTab({
         onChange={(items) => updateSite("stats", items)}
         render={(item, setItem) => (
           <>
-            <Field label="Label" value={item.label} onChange={(v) => setItem({ ...item, label: v })} />
-            <Field label="Value" value={item.value} onChange={(v) => setItem({ ...item, value: v })} />
+            <Field
+              label="Label"
+              value={item.label}
+              onChange={(v) => setItem({ ...item, label: v })}
+            />
+            <Field
+              label="Value"
+              value={item.value}
+              onChange={(v) => setItem({ ...item, value: v })}
+            />
           </>
         )}
       />
@@ -611,8 +774,16 @@ function SiteTab({
         onChange={(items) => updateSite("socialLinks", items)}
         render={(item, setItem) => (
           <>
-            <Field label="Label" value={item.label} onChange={(v) => setItem({ ...item, label: v })} />
-            <Field label="URL" value={item.url} onChange={(v) => setItem({ ...item, url: v })} />
+            <Field
+              label="Label"
+              value={item.label}
+              onChange={(v) => setItem({ ...item, label: v })}
+            />
+            <Field
+              label="URL"
+              value={item.url}
+              onChange={(v) => setItem({ ...item, url: v })}
+            />
           </>
         )}
       />
@@ -629,7 +800,11 @@ function SiteTab({
               value={item.language}
               onChange={(v) => setItem({ ...item, language: v })}
             />
-            <Field label="Level" value={item.level} onChange={(v) => setItem({ ...item, level: v })} />
+            <Field
+              label="Level"
+              value={item.level}
+              onChange={(v) => setItem({ ...item, level: v })}
+            />
           </>
         )}
       />
@@ -706,17 +881,62 @@ function ExperienceTab({
           onRemove={() => remove(index)}
           onDuplicate={() => duplicate(index)}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
-          onMoveDown={index < orderedItems.length - 1 ? () => move(index, 1) : undefined}
+          onMoveDown={
+            index < orderedItems.length - 1 ? () => move(index, 1) : undefined
+          }
         >
-          <Field label="Order" type="number" value={String(item.order)} onChange={(v) => update(index, { ...item, order: Number(v) || 1 })} />
-          <Field label="Title" value={item.title} onChange={(v) => update(index, { ...item, title: v })} />
-          <Field label="Company" value={item.company} onChange={(v) => update(index, { ...item, company: v })} />
-          <Field label="Location" value={item.location} onChange={(v) => update(index, { ...item, location: v })} />
-          <Field label="Start Date" type="date" value={item.startDate} onChange={(v) => update(index, { ...item, startDate: v })} />
-          <Field label="End Date" type="date" value={item.endDate || ""} onChange={(v) => update(index, { ...item, endDate: v })} />
-          <Toggle label="Current" checked={item.isCurrent} onChange={(v) => update(index, { ...item, isCurrent: v })} />
-          <Area label="Summary" value={item.summary} onChange={(v) => update(index, { ...item, summary: v })} rows={3} />
-          <Area label="Highlights (one per line)" value={toLines(item.highlights)} onChange={(v) => update(index, { ...item, highlights: fromLines(v) })} rows={4} />
+          <Field
+            label="Order"
+            type="number"
+            value={String(item.order)}
+            onChange={(v) => update(index, { ...item, order: Number(v) || 1 })}
+          />
+          <Field
+            label="Title"
+            value={item.title}
+            onChange={(v) => update(index, { ...item, title: v })}
+          />
+          <Field
+            label="Company"
+            value={item.company}
+            onChange={(v) => update(index, { ...item, company: v })}
+          />
+          <Field
+            label="Location"
+            value={item.location}
+            onChange={(v) => update(index, { ...item, location: v })}
+          />
+          <Field
+            label="Start Date"
+            type="date"
+            value={item.startDate}
+            onChange={(v) => update(index, { ...item, startDate: v })}
+          />
+          <Field
+            label="End Date"
+            type="date"
+            value={item.endDate || ""}
+            onChange={(v) => update(index, { ...item, endDate: v })}
+          />
+          <Toggle
+            label="Current"
+            checked={item.isCurrent}
+            onChange={(v) => update(index, { ...item, isCurrent: v })}
+          />
+          <Area
+            label="Summary"
+            value={item.summary}
+            onChange={(v) => update(index, { ...item, summary: v })}
+            rows={3}
+          />
+          <Area
+            label="Highlights (one per line)"
+            value={toLines(item.highlights)}
+            onChange={(v) =>
+              update(index, { ...item, highlights: fromLines(v) })
+            }
+            rows={4}
+          />
         </ItemCard>
       ))}
     </ItemList>
@@ -787,16 +1007,54 @@ function EducationTab({
           onRemove={() => remove(index)}
           onDuplicate={() => duplicate(index)}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
-          onMoveDown={index < orderedItems.length - 1 ? () => move(index, 1) : undefined}
+          onMoveDown={
+            index < orderedItems.length - 1 ? () => move(index, 1) : undefined
+          }
         >
-          <Field label="Order" type="number" value={String(item.order)} onChange={(v) => update(index, { ...item, order: Number(v) || 1 })} />
-          <Field label="Degree" value={item.degree} onChange={(v) => update(index, { ...item, degree: v })} />
-          <Field label="School" value={item.school} onChange={(v) => update(index, { ...item, school: v })} />
-          <Field label="Location" value={item.location} onChange={(v) => update(index, { ...item, location: v })} />
-          <Field label="Start Date" type="date" value={item.startDate} onChange={(v) => update(index, { ...item, startDate: v })} />
-          <Field label="End Date" type="date" value={item.endDate || ""} onChange={(v) => update(index, { ...item, endDate: v })} />
-          <Field label="Honors" value={item.honors || ""} onChange={(v) => update(index, { ...item, honors: v })} />
-          <Area label="Details" value={item.details} onChange={(v) => update(index, { ...item, details: v })} rows={3} />
+          <Field
+            label="Order"
+            type="number"
+            value={String(item.order)}
+            onChange={(v) => update(index, { ...item, order: Number(v) || 1 })}
+          />
+          <Field
+            label="Degree"
+            value={item.degree}
+            onChange={(v) => update(index, { ...item, degree: v })}
+          />
+          <Field
+            label="School"
+            value={item.school}
+            onChange={(v) => update(index, { ...item, school: v })}
+          />
+          <Field
+            label="Location"
+            value={item.location}
+            onChange={(v) => update(index, { ...item, location: v })}
+          />
+          <Field
+            label="Start Date"
+            type="date"
+            value={item.startDate}
+            onChange={(v) => update(index, { ...item, startDate: v })}
+          />
+          <Field
+            label="End Date"
+            type="date"
+            value={item.endDate || ""}
+            onChange={(v) => update(index, { ...item, endDate: v })}
+          />
+          <Field
+            label="Honors"
+            value={item.honors || ""}
+            onChange={(v) => update(index, { ...item, honors: v })}
+          />
+          <Area
+            label="Details"
+            value={item.details}
+            onChange={(v) => update(index, { ...item, details: v })}
+            rows={3}
+          />
         </ItemCard>
       ))}
     </ItemList>
@@ -872,17 +1130,39 @@ function ProjectsTab({
           onRemove={() => remove(index)}
           onDuplicate={() => duplicate(index)}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
-          onMoveDown={index < orderedItems.length - 1 ? () => move(index, 1) : undefined}
+          onMoveDown={
+            index < orderedItems.length - 1 ? () => move(index, 1) : undefined
+          }
         >
-          <Field label="Order" type="number" value={String(item.order)} onChange={(v) => update(index, { ...item, order: Number(v) || 1 })} />
-          <Toggle label="Featured" checked={item.featured} onChange={(v) => update(index, { ...item, featured: v })} />
-          <Field label="Title" value={item.title} onChange={(v) => update(index, { ...item, title: v })} />
-          <Field label="Period" value={item.period} onChange={(v) => update(index, { ...item, period: v })} />
+          <Field
+            label="Order"
+            type="number"
+            value={String(item.order)}
+            onChange={(v) => update(index, { ...item, order: Number(v) || 1 })}
+          />
+          <Toggle
+            label="Featured"
+            checked={item.featured}
+            onChange={(v) => update(index, { ...item, featured: v })}
+          />
+          <Field
+            label="Title"
+            value={item.title}
+            onChange={(v) => update(index, { ...item, title: v })}
+          />
+          <Field
+            label="Period"
+            value={item.period}
+            onChange={(v) => update(index, { ...item, period: v })}
+          />
           <Select
             label="Color Variant"
             value={item.colorVariant}
             onChange={(v) =>
-              update(index, { ...item, colorVariant: v as ProjectItem["colorVariant"] })
+              update(index, {
+                ...item,
+                colorVariant: v as ProjectItem["colorVariant"],
+              })
             }
             options={[
               "mint",
@@ -894,12 +1174,42 @@ function ProjectsTab({
               "white",
             ]}
           />
-          <Area label="Summary" value={item.summary} onChange={(v) => update(index, { ...item, summary: v })} rows={2} />
-          <Area label="Details" value={item.details} onChange={(v) => update(index, { ...item, details: v })} rows={4} />
-          <Area label="Tech Stack (one per line)" value={toLines(item.stack)} onChange={(v) => update(index, { ...item, stack: fromLines(v) })} rows={4} />
-          <Area label="Highlights (one per line)" value={toLines(item.highlights)} onChange={(v) => update(index, { ...item, highlights: fromLines(v) })} rows={4} />
-          <Field label="Repository URL" value={item.repoUrl || ""} onChange={(v) => update(index, { ...item, repoUrl: v })} />
-          <Field label="Live URL" value={item.liveUrl || ""} onChange={(v) => update(index, { ...item, liveUrl: v })} />
+          <Area
+            label="Summary"
+            value={item.summary}
+            onChange={(v) => update(index, { ...item, summary: v })}
+            rows={2}
+          />
+          <Area
+            label="Details"
+            value={item.details}
+            onChange={(v) => update(index, { ...item, details: v })}
+            rows={4}
+          />
+          <Area
+            label="Tech Stack (one per line)"
+            value={toLines(item.stack)}
+            onChange={(v) => update(index, { ...item, stack: fromLines(v) })}
+            rows={4}
+          />
+          <Area
+            label="Highlights (one per line)"
+            value={toLines(item.highlights)}
+            onChange={(v) =>
+              update(index, { ...item, highlights: fromLines(v) })
+            }
+            rows={4}
+          />
+          <Field
+            label="Repository URL"
+            value={item.repoUrl || ""}
+            onChange={(v) => update(index, { ...item, repoUrl: v })}
+          />
+          <Field
+            label="Live URL"
+            value={item.liveUrl || ""}
+            onChange={(v) => update(index, { ...item, liveUrl: v })}
+          />
         </ItemCard>
       ))}
     </ItemList>
@@ -966,11 +1276,27 @@ function SkillsTab({
           onRemove={() => remove(index)}
           onDuplicate={() => duplicate(index)}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
-          onMoveDown={index < orderedItems.length - 1 ? () => move(index, 1) : undefined}
+          onMoveDown={
+            index < orderedItems.length - 1 ? () => move(index, 1) : undefined
+          }
         >
-          <Field label="Order" type="number" value={String(item.order)} onChange={(v) => update(index, { ...item, order: Number(v) || 1 })} />
-          <Field label="Title" value={item.title} onChange={(v) => update(index, { ...item, title: v })} />
-          <Area label="Skills (one per line)" value={toLines(item.skills)} onChange={(v) => update(index, { ...item, skills: fromLines(v) })} rows={5} />
+          <Field
+            label="Order"
+            type="number"
+            value={String(item.order)}
+            onChange={(v) => update(index, { ...item, order: Number(v) || 1 })}
+          />
+          <Field
+            label="Title"
+            value={item.title}
+            onChange={(v) => update(index, { ...item, title: v })}
+          />
+          <Area
+            label="Skills (one per line)"
+            value={toLines(item.skills)}
+            onChange={(v) => update(index, { ...item, skills: fromLines(v) })}
+            rows={5}
+          />
         </ItemCard>
       ))}
     </ItemList>
@@ -1036,11 +1362,26 @@ function CertificationsTab({
           onRemove={() => remove(index)}
           onDuplicate={() => duplicate(index)}
           onMoveUp={index > 0 ? () => move(index, -1) : undefined}
-          onMoveDown={index < orderedItems.length - 1 ? () => move(index, 1) : undefined}
+          onMoveDown={
+            index < orderedItems.length - 1 ? () => move(index, 1) : undefined
+          }
         >
-          <Field label="Order" type="number" value={String(item.order)} onChange={(v) => update(index, { ...item, order: Number(v) || 1 })} />
-          <Field label="Name" value={item.name} onChange={(v) => update(index, { ...item, name: v })} />
-          <Field label="Issuer" value={item.issuer || ""} onChange={(v) => update(index, { ...item, issuer: v })} />
+          <Field
+            label="Order"
+            type="number"
+            value={String(item.order)}
+            onChange={(v) => update(index, { ...item, order: Number(v) || 1 })}
+          />
+          <Field
+            label="Name"
+            value={item.name}
+            onChange={(v) => update(index, { ...item, name: v })}
+          />
+          <Field
+            label="Issuer"
+            value={item.issuer || ""}
+            onChange={(v) => update(index, { ...item, issuer: v })}
+          />
         </ItemCard>
       ))}
     </ItemList>
@@ -1106,7 +1447,9 @@ function ItemCard({
   return (
     <article className="rounded-xl border border-white/15 bg-[#0f1114] p-3">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="break-words text-sm font-bold text-[#78ffe0]">{title}</h3>
+        <h3 className="break-words text-sm font-bold text-[#78ffe0]">
+          {title}
+        </h3>
         <div className="flex flex-wrap gap-1">
           {onMoveUp ? (
             <button
@@ -1162,7 +1505,9 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">{label}</span>
+      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">
+        {label}
+      </span>
       <input
         type={type}
         value={value}
@@ -1186,7 +1531,9 @@ function Area({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">{label}</span>
+      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">
+        {label}
+      </span>
       <textarea
         value={value}
         rows={rows}
@@ -1231,7 +1578,9 @@ function Select({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">{label}</span>
+      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">
+        {label}
+      </span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -1273,7 +1622,10 @@ function SimpleObjectArrayEditor<T extends object>({
         </button>
       </div>
       {entries.map((entry, index) => (
-        <div key={index} className="space-y-2 rounded-lg border border-white/10 p-2">
+        <div
+          key={index}
+          className="space-y-2 rounded-lg border border-white/10 p-2"
+        >
           {render(entry, (nextEntry) => {
             const next = [...entries];
             next[index] = nextEntry;

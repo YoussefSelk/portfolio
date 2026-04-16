@@ -13,7 +13,10 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   if (!getAuthenticatedAdminFromRequest(request)) {
-    return NextResponse.json({ ok: false, message: "Not Found" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, message: "Not Found" },
+      { status: 404 },
+    );
   }
 
   const content = await getPortfolioContent();
@@ -23,7 +26,10 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   if (!getAuthenticatedAdminFromRequest(request)) {
-    return NextResponse.json({ ok: false, message: "Not Found" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, message: "Not Found" },
+      { status: 404 },
+    );
   }
 
   let body: PortfolioContent;
@@ -37,10 +43,31 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  const saved = await savePortfolioContent(body);
+  try {
+    const saved = await savePortfolioContent(body);
 
-  revalidateTag(CONTENT_TAG, "max");
-  revalidatePath("/");
+    revalidateTag(CONTENT_TAG, "max");
+    revalidatePath("/");
 
-  return NextResponse.json({ ok: true, content: saved });
+    return NextResponse.json({ ok: true, content: saved });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown save error.";
+
+    if (/EROFS|EPERM|EACCES|ENOSPC/i.test(message)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            "Storage is not writable in this deployment environment. This CMS uses local files and needs persistent writable disk.",
+        },
+        { status: 503 },
+      );
+    }
+
+    return NextResponse.json(
+      { ok: false, message: "Failed to save content." },
+      { status: 500 },
+    );
+  }
 }
