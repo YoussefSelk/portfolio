@@ -63,6 +63,11 @@ export const metadata: Metadata = {
     description:
       "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
   },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   robots: {
     index: true,
     follow: true,
