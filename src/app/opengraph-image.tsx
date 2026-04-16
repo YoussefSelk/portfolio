@@ -50,7 +50,8 @@ export default function OpenGraphImage() {
           maxWidth: 980,
         }}
       >
-        Full-stack developer interested in AI, Data, and secure scalable systems.
+        Full-stack developer interested in AI, Data, and secure scalable
+        systems.
       </div>
       <div
         style={{

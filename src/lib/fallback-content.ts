@@ -5,7 +5,8 @@ export const fallbackPortfolioContent: PortfolioContent = {
     fullName: "Youssef Selk",
     role: "Software Engineering Student | Full-Stack Developer",
     heroKicker: "Open to internship and apprenticeship",
-    heroHeadline: "I build secure, scalable full-stack systems with measurable impact.",
+    heroHeadline:
+      "I build secure, scalable full-stack systems with measurable impact.",
     heroDescription:
       "Engineering student at EILCO (Bac+5) with hands-on delivery across Laravel, MERN, and Spring ecosystems. I focus on clean architecture, security-first implementation, and practical performance gains.",
     availability:
@@ -99,7 +100,8 @@ export const fallbackPortfolioContent: PortfolioContent = {
       startDate: "2024-09-01",
       endDate: "2027-06-30",
       honors: "In progress",
-      details: "Specializing in software engineering with full-stack and secure systems focus.",
+      details:
+        "Specializing in software engineering with full-stack and secure systems focus.",
       order: 1,
     },
     {
@@ -214,8 +216,7 @@ export const fallbackPortfolioContent: PortfolioContent = {
       _id: "project-medical-booking",
       title: "Medical Booking App",
       period: "2023",
-      summary:
-        "Multi-role healthcare appointment management platform.",
+      summary: "Multi-role healthcare appointment management platform.",
       details:
         "Laravel platform orchestrating patient-doctor-admin workflows, dashboards, and security hardening against XSS/CSRF vulnerabilities.",
       stack: ["Laravel", "MySQL", "Blade", "Chart.js"],
@@ -321,4 +322,3 @@ export const fallbackPortfolioContent: PortfolioContent = {
     { _id: "cert-angular", name: "Angular - Udemy", order: 6 },
   ],
 };
-

@@ -242,7 +242,10 @@ const enToFrMap: Array<[string, string]> = [
   ["JAN", "JANV"],
   ["MAR", "MARS"],
   ["Open to internships and alternance", "Ouvert aux stages et a l'alternance"],
-  ["Open for internships and alternance", "Ouvert aux stages et a l'alternance"],
+  [
+    "Open for internships and alternance",
+    "Ouvert aux stages et a l'alternance",
+  ],
   ["Available in 2026", "Disponible en 2026"],
   ["Software Engineering", "Genie Logiciel"],
   ["Software Engineer", "Ingenieur Logiciel"],
@@ -268,7 +271,10 @@ const enToFrMap: Array<[string, string]> = [
   ["Following", "Abonnements"],
   ["Top Repositories", "Top Depots"],
   ["No description provided yet.", "Description non renseignee."],
-  ["Fast response: usually within 24 hours.", "Reponse rapide: en general sous 24 heures."],
+  [
+    "Fast response: usually within 24 hours.",
+    "Reponse rapide: en general sous 24 heures.",
+  ],
   ["Email Me", "M'envoyer un email"],
   ["Call Me", "M'appeler"],
   ["Download CV", "Telecharger CV"],
@@ -298,7 +304,10 @@ function translateEnToFr(text: string): string {
   return translated;
 }
 
-function localizeContent(content: PortfolioContent, locale: Locale): PortfolioContent {
+function localizeContent(
+  content: PortfolioContent,
+  locale: Locale,
+): PortfolioContent {
   if (locale === "en") {
     return content;
   }
@@ -333,11 +342,13 @@ function localizeContent(content: PortfolioContent, locale: Locale): PortfolioCo
     title: translateEnToFr(group.title),
     skills: group.skills.map(translateEnToFr),
   }));
-  const certifications: CertificationItem[] = content.certifications.map((cert) => ({
-    ...cert,
-    name: translateEnToFr(cert.name),
-    issuer: cert.issuer ? translateEnToFr(cert.issuer) : cert.issuer,
-  }));
+  const certifications: CertificationItem[] = content.certifications.map(
+    (cert) => ({
+      ...cert,
+      name: translateEnToFr(cert.name),
+      issuer: cert.issuer ? translateEnToFr(cert.issuer) : cert.issuer,
+    }),
+  );
 
   return {
     ...content,
@@ -357,12 +368,15 @@ function getLocalePaths(locale: Locale) {
   return { canonical, absolute };
 }
 
-export async function buildPortfolioMetadata(locale: Locale): Promise<Metadata> {
+export async function buildPortfolioMetadata(
+  locale: Locale,
+): Promise<Metadata> {
   const content = await getPortfolioContent();
   const localizedContent = localizeContent(content, locale);
   const { site } = localizedContent;
   const { canonical, absolute } = getLocalePaths(locale);
-  const titleSuffix = locale === "fr" ? "Portfolio Officiel" : "Official Portfolio";
+  const titleSuffix =
+    locale === "fr" ? "Portfolio Officiel" : "Official Portfolio";
   const description =
     locale === "fr"
       ? `Site officiel de ${site.fullName}. ${site.heroHeadline}`
@@ -426,11 +440,7 @@ export default async function Home() {
   return <PortfolioPage locale="en" />;
 }
 
-export async function PortfolioPage({
-  locale,
-}: {
-  locale: Locale;
-}) {
+export async function PortfolioPage({ locale }: { locale: Locale }) {
   const [baseContent, github] = await Promise.all([
     getPortfolioContent(),
     getGithubSnapshot(),
@@ -443,13 +453,8 @@ export async function PortfolioPage({
   const translateByLocale = (text: string) =>
     locale === "fr" ? translateEnToFr(text) : text;
 
-  const {
-    experiences,
-    education,
-    projects,
-    skillGroups,
-    certifications,
-  } = content;
+  const { experiences, education, projects, skillGroups, certifications } =
+    content;
   const phoneDigits = site.phone.replace(/\D/g, "");
   const whatsappUrl = phoneDigits ? `https://wa.me/${phoneDigits}` : null;
   const personSchema = {
@@ -684,7 +689,9 @@ export async function PortfolioPage({
               <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
                 {site.projectsTitle}
               </h2>
-              <p className="kicker text-[var(--verge-mint)]">{uiCopy.caseStudies}</p>
+              <p className="kicker text-[var(--verge-mint)]">
+                {uiCopy.caseStudies}
+              </p>
             </div>
             <div className="section-rule" aria-hidden="true" />
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

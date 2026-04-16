@@ -107,13 +107,20 @@ export function ResponsiveNavbar({
   return (
     <header className="glass-nav sticky top-2 z-40 mx-auto mt-2 rounded-xl border border-white/20 bg-[rgba(15,16,19,0.92)] px-2 sm:top-3 sm:mt-4 sm:rounded-2xl sm:px-5">
       <div className="mx-auto flex h-14 w-full max-w-[1340px] items-center justify-between px-1 sm:h-16 sm:px-0">
-        <a href={topHref} className="display-wordmark text-2xl text-[var(--verge-mint)] sm:text-3xl">
+        <a
+          href={topHref}
+          className="display-wordmark text-2xl text-[var(--verge-mint)] sm:text-3xl"
+        >
           YS
         </a>
 
         <nav className="hidden items-center gap-4 lg:flex xl:gap-7">
           {links.map((link) => (
-            <a key={link.href} href={link.href} className="nav-link kicker focus-outline text-white">
+            <a
+              key={link.href}
+              href={link.href}
+              className="nav-link kicker focus-outline text-white"
+            >
               {link.label}
             </a>
           ))}
