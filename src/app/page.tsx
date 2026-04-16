@@ -57,18 +57,17 @@ const projectPalettes: Record<ProjectItem["colorVariant"], ProjectPalette> = {
   },
 };
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://example.com").replace(
-  /\/$/,
-  "",
-);
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+).replace(/\/$/, "");
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getPortfolioContent();
   const { site } = content;
 
   return {
-    title: `${site.fullName} | ${site.role}`,
-    description: `${site.fullName} portfolio. ${site.heroHeadline} ${site.heroDescription}`,
+    title: `${site.fullName} | Official Portfolio`,
+    description: `Official website of ${site.fullName}. ${site.heroHeadline}`,
     keywords: [
       site.fullName,
       "Youssef Selk",
@@ -83,18 +82,15 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: "/",
     },
     openGraph: {
-      title: `${site.fullName} | ${site.role}`,
-      description: `${site.heroHeadline} ${site.heroDescription}`,
+      title: `${site.fullName} | Official Portfolio`,
+      description: `${site.heroHeadline}`,
       url: siteUrl,
-      type: "profile",
-      firstName: "Youssef",
-      lastName: "Selk",
-      username: "YoussefSelk",
+      type: "website",
     },
     twitter: {
       card: "summary",
-      title: `${site.fullName} | ${site.role}`,
-      description: `${site.heroHeadline} ${site.heroDescription}`,
+      title: `${site.fullName} | Official Portfolio`,
+      description: `${site.heroHeadline}`,
     },
   };
 }
@@ -105,15 +101,23 @@ export default async function Home() {
     getGithubSnapshot(),
   ]);
 
-  const { site, experiences, education, projects, skillGroups, certifications } =
-    content;
+  const {
+    site,
+    experiences,
+    education,
+    projects,
+    skillGroups,
+    certifications,
+  } = content;
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": `${siteUrl}/#person`,
     name: site.fullName,
     alternateName: ["Youssef Selk", "Selk", "Youssef"],
     jobTitle: site.role,
     url: siteUrl,
+    mainEntityOfPage: siteUrl,
     email: `mailto:${site.email}`,
     telephone: site.phone,
     address: {
@@ -130,13 +134,43 @@ export default async function Home() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
     name: `${site.fullName} Portfolio`,
     url: siteUrl,
     inLanguage: "en",
+    mainEntity: {
+      "@id": `${siteUrl}/#person`,
+    },
     about: {
       "@type": "Person",
       name: site.fullName,
     },
+  };
+  const webpageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteUrl}/#webpage`,
+    url: siteUrl,
+    name: `${site.fullName} | Official Portfolio`,
+    description: site.heroHeadline,
+    isPartOf: {
+      "@id": `${siteUrl}/#website`,
+    },
+    about: {
+      "@id": `${siteUrl}/#person`,
+    },
+  };
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+    ],
   };
 
   return (
@@ -149,13 +183,26 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <div className="editorial-grid relative z-10 mx-auto w-full max-w-[1340px] px-3 pb-14 sm:px-6 lg:px-12">
         <ResponsiveNavbar />
 
-        <main id="top" className="space-y-12 pt-8 sm:space-y-16 sm:pt-12 lg:space-y-20 lg:pt-14">
+        <main
+          id="top"
+          className="space-y-12 pt-8 sm:space-y-16 sm:pt-12 lg:space-y-20 lg:pt-14"
+        >
           <section className="slide-up grid gap-6 lg:grid-cols-[1.55fr_1fr] lg:items-end lg:gap-8">
             <div className="space-y-5 sm:space-y-6">
-              <p className="kicker text-[var(--verge-mint)]">{site.heroKicker}</p>
+              <p className="kicker text-[var(--verge-mint)]">
+                {site.heroKicker}
+              </p>
               <h1 className="display-wordmark max-w-[13ch] text-4xl sm:text-6xl lg:text-[6.1rem]">
                 {site.fullName}
               </h1>
@@ -184,8 +231,12 @@ export default async function Home() {
               </div>
             </div>
             <aside className="story-pill interactive-card bg-[var(--verge-slate)] p-4 sm:p-6 lg:p-8">
-              <p className="kicker mb-4 text-[var(--verge-mint)]">Profile Snapshot</p>
-              <p className="mb-1 text-sm text-[var(--verge-muted)]">{site.role}</p>
+              <p className="kicker mb-4 text-[var(--verge-mint)]">
+                Profile Snapshot
+              </p>
+              <p className="mb-1 text-sm text-[var(--verge-muted)]">
+                {site.role}
+              </p>
               <p className="text-base text-white">{site.location}</p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {site.stats.map((stat) => (
@@ -196,7 +247,9 @@ export default async function Home() {
                     <p className="kicker mb-2 text-[var(--verge-muted)]">
                       {stat.label}
                     </p>
-                    <p className="text-2xl font-bold text-white">{stat.value}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {stat.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -205,7 +258,9 @@ export default async function Home() {
 
           <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
             <div className="story-pill interactive-card bg-[var(--verge-canvas)] p-4 sm:p-6 lg:p-8">
-              <p className="kicker mb-3 text-[var(--verge-mint)]">{site.aboutTitle}</p>
+              <p className="kicker mb-3 text-[var(--verge-mint)]">
+                {site.aboutTitle}
+              </p>
               <p className="mb-4 text-base leading-relaxed text-[#e5e5e5] sm:text-lg">
                 {site.aboutParagraphOne}
               </p>
@@ -230,14 +285,20 @@ export default async function Home() {
           </section>
 
           <section id="timeline" className="space-y-6 sm:space-y-7">
-            <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">{site.timelineTitle}</h2>
+            <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
+              {site.timelineTitle}
+            </h2>
             <div className="section-rule" aria-hidden="true" />
             <div className="grid gap-8 lg:grid-cols-2">
               <TimelineColumn
                 label="Professional Experience"
                 items={experiences.map((item) => ({
                   id: item._id,
-                  period: formatRange(item.startDate, item.endDate, item.isCurrent),
+                  period: formatRange(
+                    item.startDate,
+                    item.endDate,
+                    item.isCurrent,
+                  ),
                   title: item.title,
                   subtitle: `${item.company} - ${item.location}`,
                   summary: item.summary,
@@ -260,7 +321,9 @@ export default async function Home() {
 
           <section id="projects" className="space-y-6 sm:space-y-7">
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">{site.projectsTitle}</h2>
+              <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
+                {site.projectsTitle}
+              </h2>
               <p className="kicker text-[var(--verge-mint)]">Case Studies</p>
             </div>
             <div className="section-rule" aria-hidden="true" />
@@ -274,7 +337,9 @@ export default async function Home() {
                     className={`story-pill interactive-card flex h-full flex-col border ${palette.card} ${palette.text} ${palette.border} p-5 sm:p-6`}
                   >
                     <div className="mb-4 flex items-center justify-between gap-2">
-                      <span className={`kicker rounded-full px-3 py-1 ${palette.pill}`}>
+                      <span
+                        className={`kicker rounded-full px-3 py-1 ${palette.pill}`}
+                      >
                         {project.period}
                       </span>
                       {project.featured ? (
@@ -336,7 +401,9 @@ export default async function Home() {
           </section>
 
           <section id="skills" className="space-y-6 sm:space-y-7">
-            <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">{site.skillsTitle}</h2>
+            <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
+              {site.skillsTitle}
+            </h2>
             <div className="section-rule" aria-hidden="true" />
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {skillGroups.map((group, index) => (
@@ -349,7 +416,7 @@ export default async function Home() {
                     {group.skills.map((skill) => (
                       <span
                         key={skill}
-                      className="max-w-full break-words rounded-full border border-white/70 px-3 py-1 font-mono text-[0.58rem] uppercase tracking-[0.09em] sm:text-[0.65rem] sm:tracking-[0.12em]"
+                        className="max-w-full break-words rounded-full border border-white/70 px-3 py-1 font-mono text-[0.58rem] uppercase tracking-[0.09em] sm:text-[0.65rem] sm:tracking-[0.12em]"
                       >
                         {skill}
                       </span>
@@ -362,15 +429,28 @@ export default async function Home() {
 
           <section className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
             <article className="story-pill interactive-card bg-[var(--verge-slate)] p-4 sm:p-6 lg:p-8">
-              <p className="kicker mb-3 text-[var(--verge-mint)]">GitHub Overview</p>
+              <p className="kicker mb-3 text-[var(--verge-mint)]">
+                GitHub Overview
+              </p>
               <h2 className="mb-2 text-3xl font-black leading-tight sm:text-4xl">
                 {github.profile.name}
               </h2>
-              <p className="mb-5 text-sm text-[#d5d5d5] sm:text-base">{github.profile.bio}</p>
+              <p className="mb-5 text-sm text-[#d5d5d5] sm:text-base">
+                {github.profile.bio}
+              </p>
               <div className="mb-6 flex flex-wrap gap-3">
-                <Badge label="Public Repos" value={String(github.profile.public_repos)} />
-                <Badge label="Followers" value={String(github.profile.followers)} />
-                <Badge label="Following" value={String(github.profile.following)} />
+                <Badge
+                  label="Public Repos"
+                  value={String(github.profile.public_repos)}
+                />
+                <Badge
+                  label="Followers"
+                  value={String(github.profile.followers)}
+                />
+                <Badge
+                  label="Following"
+                  value={String(github.profile.following)}
+                />
               </div>
               <a
                 href={github.profile.html_url}
@@ -392,11 +472,15 @@ export default async function Home() {
                     rel="noreferrer"
                     className="interactive-card block rounded-2xl border border-black/20 p-4 transition-colors hover:bg-black hover:text-white"
                   >
-                    <h3 className="mb-1 text-base font-extrabold">{repo.name}</h3>
+                    <h3 className="mb-1 text-base font-extrabold">
+                      {repo.name}
+                    </h3>
                     <p className="mb-2 text-sm opacity-80">
                       {repo.description || "No description provided yet."}
                     </p>
-                    <p className="kicker text-black/70">{repo.language || "Mixed"}</p>
+                    <p className="kicker text-black/70">
+                      {repo.language || "Mixed"}
+                    </p>
                   </a>
                 ))}
               </div>
@@ -423,7 +507,10 @@ export default async function Home() {
             </div>
           </section>
 
-          <section id="contact" className="story-pill interactive-card bg-[var(--verge-mint)] p-5 text-black sm:p-8 lg:p-10">
+          <section
+            id="contact"
+            className="story-pill interactive-card bg-[var(--verge-mint)] p-5 text-black sm:p-8 lg:p-10"
+          >
             <p className="kicker mb-3 text-black">{site.contactTitle}</p>
             <p className="mb-6 max-w-3xl text-lg font-bold leading-tight sm:text-3xl">
               {site.contactDescription}
@@ -526,10 +613,18 @@ function TimelineColumn({
             key={item.id}
             className="story-pill interactive-card relative bg-[var(--verge-slate)] p-4 sm:p-5"
           >
-            <p className="kicker mb-3 text-[var(--verge-mint)]">{item.period}</p>
-            <h3 className="mb-2 text-xl font-bold leading-tight">{item.title}</h3>
-            <p className="mb-3 break-words text-sm text-[#d3d3d3]">{item.subtitle}</p>
-            <p className="mb-4 text-sm leading-relaxed text-[#ececec]">{item.summary}</p>
+            <p className="kicker mb-3 text-[var(--verge-mint)]">
+              {item.period}
+            </p>
+            <h3 className="mb-2 text-xl font-bold leading-tight">
+              {item.title}
+            </h3>
+            <p className="mb-3 break-words text-sm text-[#d3d3d3]">
+              {item.subtitle}
+            </p>
+            <p className="mb-4 text-sm leading-relaxed text-[#ececec]">
+              {item.summary}
+            </p>
             {item.highlights.length > 0 ? (
               <ul className="space-y-2 text-sm text-[#d9d9d9]">
                 {item.highlights.map((highlight) => (

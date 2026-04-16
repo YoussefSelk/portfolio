@@ -26,15 +26,18 @@ const siteUrl = (
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  manifest: "/manifest.webmanifest",
   title: {
-    default: "Youssef Selk | Software Engineering Portfolio",
+    default: "Youssef Selk | Official Portfolio",
     template: "%s | Youssef Selk",
   },
   description:
-    "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
+    "Official website and portfolio of Youssef Selk, software engineering student and full-stack developer.",
   applicationName: "Youssef Selk Portfolio",
   keywords: [
     "Youssef Selk",
+    "youssef selk",
+    "Youssef Benselk",
     "Selk",
     "Youssef",
     "YoussefSelk",
@@ -44,6 +47,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Youssef Selk", url: siteUrl }],
   creator: "Youssef Selk",
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
   alternates: {
     canonical: "/",
   },
@@ -55,12 +61,21 @@ export const metadata: Metadata = {
       "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
     siteName: "Youssef Selk Portfolio",
     locale: "en_US",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "Youssef Selk - Official Portfolio",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Youssef Selk | Software Engineering Portfolio",
     description:
       "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
+    images: ["/og-image.svg"],
   },
   icons: {
     icon: "/favicon.svg",
