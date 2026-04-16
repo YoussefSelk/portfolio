@@ -1,0 +1,380 @@
+{
+  "site": {
+    "fullName": "Youssef Selk",
+    "role": "Software Engineering Student | Full-Stack Developer",
+    "heroKicker": "Open to internship and apprenticeship",
+    "heroHeadline": "I build secure, scalable full-stack systems with measurable impact.",
+    "heroDescription": "Engineering student at EILCO (Bac+5) with hands-on delivery across Laravel, MERN, and Spring ecosystems. I focus on clean architecture, security-first implementation, and practical performance gains.",
+    "availability": "Available for a 3-month internship from April 2026 and apprenticeship from September 2026.",
+    "location": "Lille, France",
+    "email": "youssefbenselk@gmail.com",
+    "phone": "+33 7 68 83 43 99",
+    "linkedinUrl": "https://www.linkedin.com/in/youssef-selk-0b7211248/",
+    "githubUrl": "https://github.com/YoussefSelk",
+    "cvUrl": "/cv.pdf",
+    "landingPrimaryCtaLabel": "View Projects",
+    "landingPrimaryCtaUrl": "#projects",
+    "landingSecondaryCtaLabel": "Contact Me",
+    "landingSecondaryCtaUrl": "#contact",
+    "aboutTitle": "About",
+    "aboutParagraphOne": "I enjoy building products end-to-end, from data models and API contracts to polished frontend experiences. My recent work includes student-platform systems, automation tooling, and real-time monitoring architectures.",
+    "aboutParagraphTwo": "I bring a security and reliability mindset to product development: unit testing, secure auth patterns, SQL-hardening, and CI-driven workflows are part of my default approach.",
+    "timelineTitle": "Experience & Education",
+    "projectsTitle": "Selected Work",
+    "skillsTitle": "Technical Stack",
+    "certificationsTitle": "Certifications",
+    "contactTitle": "Let’s Build Something Serious",
+    "contactDescription": "I’m interested in backend-heavy and full-stack opportunities where I can contribute quickly, learn from strong teams, and ship meaningful features.",
+    "footerText": "Focused on secure, scalable products and measurable outcomes.",
+    "socialLinks": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/YoussefSelk"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/youssef-selk-0b7211248/"
+      },
+      {
+        "label": "Email",
+        "url": "mailto:youssefbenselk@gmail.com"
+      },
+      {
+        "label": "ORCID",
+        "url": "https://orcid.org/0009-0006-9970-3188"
+      }
+    ],
+    "stats": [
+      {
+        "label": "Team Velocity",
+        "value": "+20%"
+      },
+      {
+        "label": "Regression Drop",
+        "value": "-30%"
+      },
+      {
+        "label": "Productivity Gain",
+        "value": "+40%"
+      },
+      {
+        "label": "GitHub Repositories",
+        "value": "12"
+      }
+    ],
+    "languages": [
+      {
+        "language": "French",
+        "level": "C2"
+      },
+      {
+        "language": "English",
+        "level": "TOEIC 855 (B2)"
+      },
+      {
+        "language": "Arabic",
+        "level": "Native (C2)"
+      }
+    ]
+  },
+  "experiences": [
+    {
+      "_id": "experience-smtm",
+      "title": "Full-Stack Developer Intern",
+      "company": "SMTM",
+      "location": "Morocco",
+      "startDate": "2024-04-01",
+      "endDate": "2024-06-30",
+      "isCurrent": false,
+      "summary": "Delivered a complete Laravel + MySQL web application from schema modeling to Linux deployment.",
+      "highlights": [
+        "Built and shipped end-to-end modules across backend, database, and deployment layers.",
+        "Implemented PHPUnit tests that reduced technical regressions by 30%.",
+        "Improved sprint delivery rhythm by 20% through active Agile/Scrum collaboration."
+      ],
+      "order": 1
+    },
+    {
+      "_id": "experience-uir",
+      "title": "Backend PHP Intern",
+      "company": "Université Internationale de Rabat (UIR)",
+      "location": "Morocco",
+      "startDate": "2023-07-01",
+      "endDate": "2023-08-31",
+      "isCurrent": false,
+      "summary": "Designed a QR attendance tracking system processing large real-time user flows.",
+      "highlights": [
+        "Handled 500+ users with real-time attendance processing.",
+        "Automated attendance data treatment, improving DSI productivity by 40%.",
+        "Restructured SQL schemas to prevent injections and duplicates."
+      ],
+      "order": 2
+    }
+  ],
+  "education": [
+    {
+      "_id": "education-eilco",
+      "degree": "Engineering Degree in Computer Science (Bac+5)",
+      "school": "EILCO - École d’Ingénieurs du Littoral Côte d’Opale",
+      "location": "Calais, France",
+      "startDate": "2024-09-01",
+      "endDate": "2027-06-30",
+      "honors": "In progress",
+      "details": "Specializing in software engineering with full-stack and secure systems focus.",
+      "order": 1
+    },
+    {
+      "_id": "education-est",
+      "degree": "DUT in Computer Engineering",
+      "school": "EST - École Supérieure de Technologie",
+      "location": "Kenitra, Morocco",
+      "startDate": "2022-09-01",
+      "endDate": "2024-06-30",
+      "honors": "Valedictorian (Major de promotion)",
+      "details": "Graduated top of class with strong software foundations.",
+      "order": 2
+    }
+  ],
+  "projects": [
+    {
+      "_id": "project-vie-asso",
+      "title": "Projet Vie Associative",
+      "period": "2026",
+      "summary": "Student association platform for club, event, and workflow management.",
+      "details": "Production-minded platform with role-based validation flows, subscriptions, and event operations for campus life.",
+      "stack": [
+        "PHP",
+        "MVC",
+        "MySQL"
+      ],
+      "highlights": [
+        "Role-based validation workflows",
+        "Subscription and event management",
+        "Live deployment for real user activity"
+      ],
+      "repoUrl": "https://github.com/YoussefSelk/Projet-Vie-Associative",
+      "liveUrl": "https://www.upgradevieasso.eilco-ulco.fr/",
+      "featured": true,
+      "order": 1,
+      "colorVariant": "mint"
+    },
+    {
+      "_id": "project-vibecode",
+      "title": "VibeCode PlayBook",
+      "period": "2026",
+      "summary": "Lean multi-agent workflow framework for AI-assisted engineering.",
+      "details": "Playbook designed to improve context management, reduce token waste, and enforce end-to-end validation in coding sessions.",
+      "stack": [
+        "PowerShell",
+        "Docs-as-Code",
+        "Workflow Design"
+      ],
+      "highlights": [
+        "Published developer workflow system",
+        "Supports multi-agent orchestration",
+        "Includes GitHub Pages documentation"
+      ],
+      "repoUrl": "https://github.com/YoussefSelk/VibeCode-PlayBook",
+      "liveUrl": "https://youssefselk.github.io/VibeCode-PlayBook/",
+      "featured": true,
+      "order": 2,
+      "colorVariant": "ultraviolet"
+    },
+    {
+      "_id": "project-ecosys",
+      "title": "EcoSys",
+      "period": "2025 - Present",
+      "summary": "Interconnected personal-device ecosystem with cross-platform synchronization.",
+      "details": "Built a modular C++ architecture with runtime OS detection and low-level communication to support Linux/Windows and future Android/IoT extension.",
+      "stack": [
+        "C++",
+        "Systems Programming",
+        "Cross-Platform"
+      ],
+      "highlights": [
+        "Real-time OS detection",
+        "Modular design for future terminal types",
+        "Low-level communication layer"
+      ],
+      "featured": true,
+      "order": 3,
+      "colorVariant": "yellow"
+    },
+    {
+      "_id": "project-microservices-generator",
+      "title": "Microservices Generator",
+      "period": "2025 - Present",
+      "summary": "Automation tool generating production-ready microservice structures.",
+      "details": "Architecture generator that injects JWT security, logging defaults, and project conventions to accelerate new service creation.",
+      "stack": [
+        "Java",
+        "Spring Boot",
+        "Maven",
+        "Angular"
+      ],
+      "highlights": [
+        "Reduced setup time by 80%",
+        "Security and logging injected by default",
+        "Accelerates team onboarding"
+      ],
+      "featured": true,
+      "order": 4,
+      "colorVariant": "orange"
+    },
+    {
+      "_id": "project-save-more",
+      "title": "SaveMore",
+      "period": "2024",
+      "summary": "Personal finance tracker with secure auth and advanced filtering.",
+      "details": "MERN app with JWT authentication, CRUD workflows, and optimized React rendering for smoother mobile/desktop usage.",
+      "stack": [
+        "MongoDB",
+        "Express",
+        "React",
+        "Node.js",
+        "Tailwind CSS"
+      ],
+      "highlights": [
+        "JWT auth with protected routes",
+        "List loading time cut by around 50%",
+        "Responsive UI for mobile and desktop"
+      ],
+      "repoUrl": "https://github.com/YoussefSelk",
+      "featured": false,
+      "order": 5,
+      "colorVariant": "pink"
+    },
+    {
+      "_id": "project-medical-booking",
+      "title": "Medical Booking App",
+      "period": "2023",
+      "summary": "Multi-role healthcare appointment management platform.",
+      "details": "Laravel platform orchestrating patient-doctor-admin workflows, dashboards, and security hardening against XSS/CSRF vulnerabilities.",
+      "stack": [
+        "Laravel",
+        "MySQL",
+        "Blade",
+        "Chart.js"
+      ],
+      "highlights": [
+        "RBAC-driven appointment flows",
+        "Interactive statistics dashboards",
+        "Critical security hardening"
+      ],
+      "repoUrl": "https://github.com/YoussefSelk/YM-Medical-Appointment",
+      "featured": false,
+      "order": 6,
+      "colorVariant": "slate"
+    }
+  ],
+  "skillGroups": [
+    {
+      "_id": "skills-languages",
+      "title": "Languages",
+      "skills": [
+        "JavaScript (ES6+)",
+        "TypeScript",
+        "PHP",
+        "Python",
+        "C++",
+        "HTML5",
+        "CSS3"
+      ],
+      "order": 1
+    },
+    {
+      "_id": "skills-frontend",
+      "title": "Frontend",
+      "skills": [
+        "React",
+        "Next.js",
+        "Angular",
+        "React Native",
+        "Tailwind CSS",
+        "Figma",
+        "UX/UI Design"
+      ],
+      "order": 2
+    },
+    {
+      "_id": "skills-backend",
+      "title": "Backend",
+      "skills": [
+        "Node.js",
+        "Express.js",
+        "NestJS",
+        "Laravel",
+        "Symfony",
+        "Spring Boot",
+        "REST API",
+        "GraphQL",
+        "RabbitMQ",
+        "Socket.io"
+      ],
+      "order": 3
+    },
+    {
+      "_id": "skills-data-devops",
+      "title": "Data + DevOps",
+      "skills": [
+        "MySQL",
+        "PostgreSQL",
+        "MongoDB",
+        "Redis",
+        "SQLite",
+        "Oracle DB",
+        "Docker",
+        "GitHub Actions",
+        "Linux",
+        "CI/CD",
+        "Swagger/OpenAPI"
+      ],
+      "order": 4
+    },
+    {
+      "_id": "skills-quality-security",
+      "title": "Quality + Security",
+      "skills": [
+        "Jest",
+        "PHPUnit",
+        "Unit and integration testing",
+        "XSS / CSRF / SQL injection mitigation",
+        "OWASP principles",
+        "RGPD awareness"
+      ],
+      "order": 5
+    }
+  ],
+  "certifications": [
+    {
+      "_id": "cert-network",
+      "name": "CompTIA Network+",
+      "order": 1
+    },
+    {
+      "_id": "cert-git",
+      "name": "Git & GitHub (Coursera IBM)",
+      "order": 2
+    },
+    {
+      "_id": "cert-sql",
+      "name": "SQL MySQL",
+      "order": 3
+    },
+    {
+      "_id": "cert-java",
+      "name": "Java OOP - Udemy",
+      "order": 4
+    },
+    {
+      "_id": "cert-spring",
+      "name": "Spring Boot - Udemy",
+      "order": 5
+    },
+    {
+      "_id": "cert-angular",
+      "name": "Angular - Udemy",
+      "order": 6
+    }
+  ]
+}
