@@ -1,0 +1,342 @@
+{
+  "site": {
+    "role": "Software Engineering Student | Full-Stack Developer",
+    "cvUrl": "/cv.pdf",
+    "email": "youssefselk.dev@gmail.com",
+    "phone": "+33 X XX XX XX",
+    "stats": [
+      { "label": "Team Velocity", "value": "+20%" },
+      { "label": "Regression Drop", "value": "-30%" },
+      { "label": "Productivity Gain", "value": "+40%" },
+      { "label": "GitHub Repositories", "value": "12" }
+    ],
+    "fullName": "Youssef Selk",
+    "location": "Lille, France",
+    "githubUrl": "https://github.com/YoussefSelk",
+    "languages": [
+      { "level": "C2", "language": "French" },
+      { "level": "TOEIC 855 (B2)", "language": "English" },
+      { "level": "Native (C2)", "language": "Arabic" }
+    ],
+    "aboutTitle": "About the Builder",
+    "footerText": "ISSUE 2026 · PORTFOLIO · MADE IN LILLE · © YOUSSEF SELK",
+    "heroKicker": "Computer Engineering Student / EILCO",
+    "linkedinUrl": "https://www.linkedin.com/in/youssef-selk-0b7211248/",
+    "skillsTitle": "The Build",
+    "socialLinks": [
+      { "url": "https://github.com/YoussefSelk", "label": "GitHub" },
+      {
+        "url": "https://www.linkedin.com/in/youssef-selk-0b7211248/",
+        "label": "LinkedIn"
+      },
+      { "url": "mailto:youssefselk.dev@gmail.com", "label": "Email" },
+      { "url": "https://orcid.org/0009-0006-9970-3188", "label": "ORCID" }
+    ],
+    "availability": "Available for a 3-month internship from June 2026 and apprenticeship from September 2026.",
+    "contactTitle": "Colophon",
+    "heroHeadline": "I build secure, scalable full-stack systems with measurable impact.",
+    "projectsTitle": "Selected Work",
+    "timelineTitle": "The Road So Far",
+    "heroDescription": "Engineering student at EILCO with hands-on delivery across Laravel, MERN, and Spring ecosystems. I focus on clean architecture, security-first implementation, and practical performance gains.",
+    "aboutParagraphOne": "At SMTM, I replaced a tracking flow buried in dozens of Excel tabs with a Laravel workflow that still holds on Monday morning in production.",
+    "aboutParagraphTwo": "At UIR, the QR attendance system looked easy until the first surge of nearly 500 scans at once. That week taught me to design for failure before optimizing for speed.",
+    "contactDescription": "This site was built in Next.js and deployed on Vercel. Typeset in Space Grotesk and Fraunces. Written by hand, rewritten by hand, between Calais and Lille in 2026. Source code at github.com/YoussefSelk/portfolio. Spotted a typo or want to work together? Write to me.",
+    "certificationsTitle": "Certifications",
+    "landingPrimaryCtaUrl": "#work",
+    "landingPrimaryCtaLabel": "Read the work",
+    "landingSecondaryCtaUrl": "#colophon",
+    "landingSecondaryCtaLabel": "Write to me",
+    "contentOverrides": [
+      { "key": "nav.dispatch", "value": "Dispatch" },
+      { "key": "nav.work", "value": "Work" },
+      { "key": "nav.build", "value": "Build" },
+      { "key": "nav.timeline", "value": "Timeline" },
+      { "key": "nav.colophon", "value": "Colophon" },
+      { "key": "nav.contact", "value": "Contact" },
+      { "key": "dispatch.label", "value": "Dispatch · 01" },
+      { "key": "build.label", "value": "Build · Table of Contents" },
+      { "key": "timeline.labelPrefix", "value": "Timeline" },
+      { "key": "timeline.readMore", "value": "Read more" },
+      { "key": "timeline.present", "value": "Present" },
+      { "key": "work.kicker", "value": "Featured · Issue 2026" },
+      { "key": "work.case01State", "value": "In production" },
+      { "key": "work.case02State", "value": "Published" },
+      { "key": "work.case03State", "value": "Active" },
+      { "key": "work.repoLabel", "value": "Repository" },
+      { "key": "work.liveLabel", "value": "Live" },
+      { "key": "work.previewTitle", "value": "Preview" },
+      { "key": "work.previewMeta", "value": "Roles · Events · Validation" },
+      { "key": "github.overviewLabel", "value": "GitHub Overview" },
+      { "key": "github.publicReposLabel", "value": "Public Repos" },
+      { "key": "github.followersLabel", "value": "Followers" },
+      { "key": "github.followingLabel", "value": "Following" },
+      { "key": "github.openLabel", "value": "Open GitHub" },
+      { "key": "github.topReposLabel", "value": "Top Repositories" },
+      {
+        "key": "github.noDescriptionLabel",
+        "value": "No description provided yet."
+      },
+      { "key": "github.mixedLanguageLabel", "value": "Mixed" },
+      { "key": "colophon.mailSubject", "value": "Portfolio editorial inquiry" },
+      { "key": "colophon.cvLabel", "value": "CV (PDF)" },
+      { "key": "nav.work.fr", "value": "Projets" },
+      { "key": "nav.build.fr", "value": "Stack" },
+      { "key": "nav.timeline.fr", "value": "Parcours" },
+      { "key": "timeline.readMore.fr", "value": "Lire plus" },
+      { "key": "timeline.present.fr", "value": "En cours" },
+      { "key": "work.case01State.fr", "value": "En production" },
+      { "key": "work.case02State.fr", "value": "Publie" },
+      { "key": "work.case03State.fr", "value": "Actif" },
+      { "key": "work.repoLabel.fr", "value": "Depot" },
+      { "key": "github.openLabel.fr", "value": "Voir GitHub" }
+    ]
+  },
+  "projects": [
+    {
+      "_id": "project-vie-asso",
+      "order": 1,
+      "stack": ["PHP", "MVC", "MySQL"],
+      "title": "Projet Vie Associative",
+      "period": "2026",
+      "details": "Production-minded platform with role-based validation flows, subscriptions, and event operations for campus life.",
+      "liveUrl": "https://www.upgradevieasso.eilco-ulco.fr/",
+      "repoUrl": "https://github.com/YoussefSelk/Projet-Vie-Associative",
+      "summary": "Student association platform for club, event, and workflow management.",
+      "featured": true,
+      "highlights": [
+        "Role-based validation workflows",
+        "Subscription and event management",
+        "Live deployment for real user activity"
+      ],
+      "colorVariant": "mint"
+    },
+    {
+      "_id": "project-vibecode",
+      "order": 2,
+      "stack": ["PowerShell", "Docs-as-Code", "Workflow Design"],
+      "title": "VibeCode PlayBook",
+      "period": "2026",
+      "details": "Playbook designed to improve context management, reduce token waste, and enforce end-to-end validation in coding sessions.",
+      "liveUrl": "https://youssefselk.github.io/VibeCode-PlayBook/",
+      "repoUrl": "https://github.com/YoussefSelk/VibeCode-PlayBook",
+      "summary": "Lean multi-agent workflow framework for AI-assisted engineering.",
+      "featured": true,
+      "highlights": [
+        "Published developer workflow system",
+        "Supports multi-agent orchestration",
+        "Includes GitHub Pages documentation"
+      ],
+      "colorVariant": "ultraviolet"
+    },
+    {
+      "_id": "project-ecosys",
+      "order": 3,
+      "stack": ["C++", "Systems Programming", "Cross-Platform"],
+      "title": "EcoSys",
+      "period": "2025 - Present",
+      "details": "Built a modular C++ architecture with runtime OS detection and low-level communication to support Linux/Windows and future Android/IoT extension.",
+      "summary": "Interconnected personal-device ecosystem with cross-platform synchronization.",
+      "featured": true,
+      "highlights": [
+        "Real-time OS detection",
+        "Modular design for future terminal types",
+        "Low-level communication layer"
+      ],
+      "colorVariant": "yellow"
+    },
+    {
+      "_id": "project-microservices-generator",
+      "order": 4,
+      "stack": ["Java", "Spring Boot", "Maven", "Angular"],
+      "title": "Microservices Generator",
+      "period": "2025 - Present",
+      "details": "Architecture generator that injects JWT security, logging defaults, and project conventions to accelerate new service creation.",
+      "summary": "Automation tool generating production-ready microservice structures.",
+      "featured": true,
+      "highlights": [
+        "Reduced setup time by 80%",
+        "Security and logging injected by default",
+        "Accelerates team onboarding"
+      ],
+      "colorVariant": "orange"
+    },
+    {
+      "_id": "project-save-more",
+      "order": 5,
+      "stack": ["MongoDB", "Express", "React", "Node.js", "Tailwind CSS"],
+      "title": "SaveMore",
+      "period": "2024",
+      "details": "MERN app with JWT authentication, CRUD workflows, and optimized React rendering for smoother mobile/desktop usage.",
+      "repoUrl": "https://github.com/YoussefSelk",
+      "summary": "Personal finance tracker with secure auth and advanced filtering.",
+      "featured": false,
+      "highlights": [
+        "JWT auth with protected routes",
+        "List loading time cut by around 50%",
+        "Responsive UI for mobile and desktop"
+      ],
+      "colorVariant": "pink"
+    },
+    {
+      "_id": "project-medical-booking",
+      "order": 6,
+      "stack": ["Laravel", "MySQL", "Blade", "Chart.js"],
+      "title": "Medical Booking App",
+      "period": "2023",
+      "details": "Laravel platform orchestrating patient-doctor-admin workflows, dashboards, and security hardening against XSS/CSRF vulnerabilities.",
+      "repoUrl": "https://github.com/YoussefSelk/YM-Medical-Appointment",
+      "summary": "Multi-role healthcare appointment management platform.",
+      "featured": false,
+      "highlights": [
+        "RBAC-driven appointment flows",
+        "Interactive statistics dashboards",
+        "Critical security hardening"
+      ],
+      "colorVariant": "slate"
+    }
+  ],
+  "education": [
+    {
+      "_id": "education-eilco",
+      "order": 1,
+      "degree": "Engineering Degree in Computer Science (Bac+5)",
+      "honors": "In progress",
+      "school": "EILCO - École d’Ingénieurs du Littoral Côte d’Opale",
+      "details": "Specializing in software engineering with full-stack and secure systems focus.",
+      "endDate": "2027-06-30",
+      "location": "Calais, France",
+      "startDate": "2024-09-01"
+    },
+    {
+      "_id": "education-est",
+      "order": 2,
+      "degree": "DUT in Computer Engineering",
+      "honors": "Valedictorian (Major de promotion)",
+      "school": "EST - École Supérieure de Technologie",
+      "details": "Graduated top of class with strong software foundations.",
+      "endDate": "2024-06-30",
+      "location": "Kenitra, Morocco",
+      "startDate": "2022-09-01"
+    }
+  ],
+  "experiences": [
+    {
+      "_id": "experience-smtm",
+      "order": 1,
+      "title": "Full-Stack Developer Intern",
+      "company": "SMTM",
+      "endDate": "2024-06-30",
+      "summary": "Delivered a complete Laravel + MySQL web application from schema modeling to Linux deployment.",
+      "location": "Morocco",
+      "isCurrent": false,
+      "startDate": "2024-04-01",
+      "highlights": [
+        "Built and shipped end-to-end modules across backend, database, and deployment layers.",
+        "Implemented PHPUnit tests that reduced technical regressions by 30%.",
+        "Improved sprint delivery rhythm by 20% through active Agile/Scrum collaboration."
+      ]
+    },
+    {
+      "_id": "experience-uir",
+      "order": 2,
+      "title": "Backend PHP Intern",
+      "company": "Université Internationale de Rabat (UIR)",
+      "endDate": "2023-08-31",
+      "summary": "Designed a QR attendance tracking system processing large real-time user flows.",
+      "location": "Morocco",
+      "isCurrent": false,
+      "startDate": "2023-07-01",
+      "highlights": [
+        "Handled 500+ users with real-time attendance processing.",
+        "Automated attendance data treatment, improving DSI productivity by 40%.",
+        "Restructured SQL schemas to prevent injections and duplicates."
+      ]
+    }
+  ],
+  "skillGroups": [
+    {
+      "_id": "skills-languages",
+      "order": 1,
+      "title": "Languages",
+      "skills": [
+        "JavaScript (ES6+)",
+        "TypeScript",
+        "PHP",
+        "Python",
+        "C++",
+        "HTML5",
+        "CSS3"
+      ]
+    },
+    {
+      "_id": "skills-frontend",
+      "order": 2,
+      "title": "Frontend",
+      "skills": [
+        "React",
+        "Next.js",
+        "Angular",
+        "React Native",
+        "Tailwind CSS",
+        "Figma",
+        "UX/UI Design"
+      ]
+    },
+    {
+      "_id": "skills-backend",
+      "order": 3,
+      "title": "Backend",
+      "skills": [
+        "Node.js",
+        "Express.js",
+        "NestJS",
+        "Laravel",
+        "Symfony",
+        "Spring Boot",
+        "REST API",
+        "GraphQL",
+        "RabbitMQ",
+        "Socket.io"
+      ]
+    },
+    {
+      "_id": "skills-data-devops",
+      "order": 4,
+      "title": "Data + DevOps",
+      "skills": [
+        "MySQL",
+        "PostgreSQL",
+        "MongoDB",
+        "Redis",
+        "SQLite",
+        "Oracle DB",
+        "Docker",
+        "GitHub Actions",
+        "Linux",
+        "CI/CD",
+        "Swagger/OpenAPI"
+      ]
+    },
+    {
+      "_id": "skills-quality-security",
+      "order": 5,
+      "title": "Quality + Security",
+      "skills": [
+        "Jest",
+        "PHPUnit",
+        "Unit and integration testing",
+        "XSS / CSRF / SQL injection mitigation",
+        "OWASP principles",
+        "RGPD awareness"
+      ]
+    }
+  ],
+  "certifications": [
+    { "_id": "cert-network", "name": "CompTIA Network+", "order": 1 },
+    { "_id": "cert-git", "name": "Git & GitHub (Coursera IBM)", "order": 2 },
+    { "_id": "cert-sql", "name": "SQL MySQL", "order": 3 },
+    { "_id": "cert-java", "name": "Java OOP - Udemy", "order": 4 },
+    { "_id": "cert-spring", "name": "Spring Boot - Udemy", "order": 5 },
+    { "_id": "cert-angular", "name": "Angular - Udemy", "order": 6 }
+  ]
+}

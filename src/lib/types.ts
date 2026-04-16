@@ -13,6 +13,11 @@ export type LanguageItem = {
   level: string;
 };
 
+export type ContentOverrideItem = {
+  key: string;
+  value: string;
+};
+
 export type SiteSettings = {
   fullName: string;
   role: string;
@@ -43,6 +48,7 @@ export type SiteSettings = {
   socialLinks: SocialLink[];
   stats: StatItem[];
   languages: LanguageItem[];
+  contentOverrides: ContentOverrideItem[];
 };
 
 export type ExperienceItem = {

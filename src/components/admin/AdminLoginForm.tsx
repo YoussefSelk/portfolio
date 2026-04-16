@@ -39,31 +39,42 @@ export function AdminLoginForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-2xl border border-white/20 bg-[#111315] p-4 sm:p-6">
-      <p className="text-xs uppercase tracking-[0.2em] text-[#78ffe0]">Private Access</p>
-      <h1 className="text-xl font-bold text-white sm:text-2xl">Admin Sign In</h1>
-      <p className="text-sm text-zinc-300">
+    <form
+      onSubmit={submit}
+      className="space-y-4 rounded-3xl border border-white/15 bg-[#13161a] p-5 shadow-[0_20px_40px_rgba(0,0,0,0.28)] sm:p-7"
+    >
+      <p className="font-mono text-xs uppercase tracking-[0.2em] text-(--accent-mint)">
+        Private Access
+      </p>
+      <h1 className="text-xl font-black text-white sm:text-2xl">
+        Admin Sign In
+      </h1>
+      <p className="text-sm text-zinc-200/85">
         This area is hidden and secured with database-backed authentication.
       </p>
 
       <label className="block">
-        <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">Username</span>
+        <span className="mb-1.5 block font-mono text-xs uppercase tracking-[0.14em] text-zinc-200/90">
+          Username
+        </span>
         <input
           value={username}
           onChange={(event) => setUsername(event.target.value)}
-          className="w-full rounded-lg border border-white/20 bg-[#15181c] px-3 py-2 text-sm text-white outline-none focus:border-[#3cffd0]"
+          className="min-h-11 w-full rounded-xl border border-white/20 bg-[#0f1318] px-3.5 py-2.5 text-[0.95rem] text-white outline-none transition focus:border-(--accent-mint) focus:ring-2 focus:ring-(--accent-mint)/25"
           autoComplete="username"
           required
         />
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">Password</span>
+        <span className="mb-1.5 block font-mono text-xs uppercase tracking-[0.14em] text-zinc-200/90">
+          Password
+        </span>
         <input
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="w-full rounded-lg border border-white/20 bg-[#15181c] px-3 py-2 text-sm text-white outline-none focus:border-[#3cffd0]"
+          className="min-h-11 w-full rounded-xl border border-white/20 bg-[#0f1318] px-3.5 py-2.5 text-[0.95rem] text-white outline-none transition focus:border-(--accent-mint) focus:ring-2 focus:ring-(--accent-mint)/25"
           autoComplete="current-password"
           required
         />
@@ -74,7 +85,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-full bg-[#3cffd0] px-5 py-2 text-xs font-bold uppercase tracking-[0.15em] text-black disabled:opacity-70 sm:w-auto"
+        className="w-full rounded-full border border-(--accent-mint) bg-(--accent-mint) px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.15em] text-black transition hover:brightness-95 disabled:opacity-70 sm:w-auto"
       >
         {submitting ? "Signing in..." : "Sign in"}
       </button>

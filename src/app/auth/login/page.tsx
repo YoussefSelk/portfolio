@@ -20,7 +20,7 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0d0f11] px-4 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-[#0a0b0d] px-4 py-12">
       <div className="w-full max-w-md">
         <AdminLoginForm />
       </div>

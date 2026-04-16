@@ -1,20 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">YS Favicon</title>
-  <desc id="desc">Monogram favicon with letters Y and S</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f172a" />
-      <stop offset="100%" stop-color="#111827" />
-    </linearGradient>
-    <linearGradient id="fg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#34f5cd" />
-      <stop offset="100%" stop-color="#7cffdf" />
-    </linearGradient>
-  </defs>
-  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)" />
-  <path d="M12 15h8l7 10 7-10h8L31 30v19h-8V30L12 15z" fill="url(#fg)" />
+  <desc id="desc">Editorial monogram favicon with hazard stripe</desc>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#131110" />
+  <rect x="8" y="10" width="48" height="6" fill="#ffd128" />
+  <rect x="8" y="12" width="48" height="2" fill="#000000" opacity="0.82" />
+  <path d="M13 20h8l7 10 7-10h8L32 35v14h-8V35L13 20z" fill="#c6f24e" />
   <path
-    d="M52 19c0 3.9-3.1 7-7 7h-4c-1.1 0-2 .9-2 2s.9 2 2 2h4c5 0 9 4 9 9s-4 9-9 9h-12v-7h12c1.1 0 2-.9 2-2s-.9-2-2-2h-4c-5 0-9-4-9-9s4-9 9-9h11v0z"
-    fill="url(#fg)"
+    d="M50 24c0 3-2.4 5.4-5.4 5.4h-4c-1 0-1.8.8-1.8 1.8s.8 1.8 1.8 1.8h4c4.8 0 8.8 3.9 8.8 8.8s-3.9 8.8-8.8 8.8H33v-7h11.6c1 0 1.8-.8 1.8-1.8S45.6 40 44.6 40h-4c-4.8 0-8.8-3.9-8.8-8.8s3.9-8.8 8.8-8.8H50z"
+    fill="#f2ede2"
   />
 </svg>

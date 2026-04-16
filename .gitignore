@@ -9,7 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+REDESIGN_BRIEF.md
 # testing
 /coverage
 

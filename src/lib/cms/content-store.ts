@@ -63,9 +63,28 @@ function normalizeContent(raw: unknown): PortfolioContent {
   }
 
   const candidate = raw as Partial<PortfolioContent>;
+  const candidateSite =
+    candidate.site && typeof candidate.site === "object"
+      ? (candidate.site as Partial<PortfolioContent["site"]>)
+      : {};
 
   return {
-    site: candidate.site ?? fallbackPortfolioContent.site,
+    site: {
+      ...fallbackPortfolioContent.site,
+      ...candidateSite,
+      socialLinks: Array.isArray(candidateSite.socialLinks)
+        ? candidateSite.socialLinks
+        : fallbackPortfolioContent.site.socialLinks,
+      stats: Array.isArray(candidateSite.stats)
+        ? candidateSite.stats
+        : fallbackPortfolioContent.site.stats,
+      languages: Array.isArray(candidateSite.languages)
+        ? candidateSite.languages
+        : fallbackPortfolioContent.site.languages,
+      contentOverrides: Array.isArray(candidateSite.contentOverrides)
+        ? candidateSite.contentOverrides
+        : fallbackPortfolioContent.site.contentOverrides,
+    },
     experiences: sortByOrder(
       Array.isArray(candidate.experiences)
         ? (candidate.experiences as PortfolioContent["experiences"])

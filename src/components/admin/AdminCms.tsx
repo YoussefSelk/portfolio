@@ -82,6 +82,9 @@ function isValidUrl(input: string) {
 
 function validateContent(content: PortfolioContent) {
   const issues: string[] = [];
+  const contentOverrides = Array.isArray(content.site.contentOverrides)
+    ? content.site.contentOverrides
+    : [];
 
   if (!content.site.fullName.trim()) {
     issues.push("Global: Full Name is required.");
@@ -108,6 +111,31 @@ function validateContent(content: PortfolioContent) {
     .filter(({ item }) => !item.label.trim() || !item.url.trim())
     .map(({ index }) => `Global: Social link #${index + 1} is incomplete.`);
   issues.push(...socialIssues);
+
+  const overrideKeys = new Set<string>();
+  const overrideIssues = contentOverrides.flatMap((item, index) => {
+    const local: string[] = [];
+    const key = item.key.trim();
+    const value = item.value.trim();
+
+    if (!key) {
+      local.push(`Global: Override #${index + 1} is missing a key.`);
+      return local;
+    }
+
+    if (!value) {
+      local.push(`Global: Override '${key}' is missing a value.`);
+    }
+
+    const normalizedKey = key.toLowerCase();
+    if (overrideKeys.has(normalizedKey)) {
+      local.push(`Global: Duplicate override key '${key}'.`);
+    }
+    overrideKeys.add(normalizedKey);
+
+    return local;
+  });
+  issues.push(...overrideIssues);
 
   const orderGroups: Array<{
     label: string;
@@ -173,9 +201,9 @@ function previewAnchorForTab(tab: TabKey) {
     case "education":
       return "#timeline";
     case "projects":
-      return "#projects";
+      return "#work";
     case "skills":
-      return "#skills";
+      return "#build";
     case "certifications":
       return "#certifications";
     default:
@@ -327,6 +355,25 @@ export function AdminCms({
     fileInputRef.current?.click();
   }
 
+  function withSiteDefaults(value: PortfolioContent): PortfolioContent {
+    return {
+      ...value,
+      site: {
+        ...value.site,
+        socialLinks: Array.isArray(value.site.socialLinks)
+          ? value.site.socialLinks
+          : [],
+        stats: Array.isArray(value.site.stats) ? value.site.stats : [],
+        languages: Array.isArray(value.site.languages)
+          ? value.site.languages
+          : [],
+        contentOverrides: Array.isArray(value.site.contentOverrides)
+          ? value.site.contentOverrides
+          : [],
+      },
+    };
+  }
+
   async function importJson(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
@@ -351,7 +398,9 @@ export function AdminCms({
         throw new Error("Invalid JSON shape");
       }
 
-      const imported = cloneContent(parsed as PortfolioContent);
+      const imported = withSiteDefaults(
+        cloneContent(parsed as PortfolioContent),
+      );
       setContent(imported);
       setMessage("JSON imported. Review and save to publish.");
       setPreviewTick((value) => value + 1);
@@ -367,7 +416,7 @@ export function AdminCms({
   function resetUnsaved() {
     try {
       const parsed = JSON.parse(baselineSnapshot) as PortfolioContent;
-      setContent(parsed);
+      setContent(withSiteDefaults(parsed));
       setMessage("Unsaved changes were reset.");
       setPreviewTick((value) => value + 1);
     } catch {
@@ -395,18 +444,18 @@ export function AdminCms({
   }
 
   return (
-    <div className="min-h-screen bg-[#101012] text-white">
-      <div className="mx-auto flex w-full max-w-[1700px] flex-col gap-4 px-3 py-3 sm:px-4 sm:py-4 lg:px-6">
-        <header className="rounded-2xl border border-white/20 bg-[#16181b] p-3 sm:p-4">
+    <div className="min-h-screen bg-[#0d0e10] text-white">
+      <div className="mx-auto flex w-full max-w-[1760px] flex-col gap-4 px-3 py-3 sm:px-4 sm:py-4 lg:px-7">
+        <header className="rounded-3xl border border-white/15 bg-[#14161a] p-4 shadow-[0_20px_40px_rgba(0,0,0,0.3)] sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[#78ffe0]">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-(--accent-mint)">
                 Private Admin
               </p>
-              <h1 className="text-xl font-bold sm:text-2xl">
+              <h1 className="text-xl font-black sm:text-2xl">
                 Custom Portfolio CMS
               </h1>
-              <p className="text-sm text-zinc-300">
+              <p className="text-sm text-zinc-200/85">
                 Edit content on the left. Use preview on the right to see
                 placement instantly.
               </p>
@@ -514,17 +563,17 @@ export function AdminCms({
         </header>
 
         <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
-          <section className="rounded-2xl border border-white/20 bg-[#141518] p-3 sm:p-4">
+          <section className="rounded-3xl border border-white/15 bg-[#111318] p-3 sm:p-4">
             <div className="mb-4 flex flex-wrap gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveTab(tab.key)}
-                  className={`rounded-full px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.09em] sm:px-4 sm:text-xs sm:tracking-[0.12em] ${
+                  className={`rounded-full border px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.09em] transition-colors sm:px-4 sm:text-xs sm:tracking-[0.12em] ${
                     activeTab === tab.key
-                      ? "bg-[#3cffd0] text-black"
-                      : "border border-white/25 text-white"
+                      ? "border-(--accent-mint) bg-(--accent-mint) text-black"
+                      : "border-white/25 text-white hover:border-white/45 hover:bg-white/5"
                   }`}
                 >
                   {tab.label}
@@ -582,7 +631,7 @@ export function AdminCms({
             ) : null}
           </section>
 
-          <aside className="rounded-2xl border border-white/20 bg-[#0d0e10] p-2">
+          <aside className="rounded-3xl border border-white/15 bg-[#0b0c0f] p-2">
             <iframe
               key={previewSrc}
               src={previewSrc}
@@ -608,6 +657,10 @@ function SiteTab({
 }) {
   return (
     <div className="space-y-4">
+      <div className="rounded-xl border border-white/15 bg-[#0e1014] px-3 py-2.5 text-xs text-zinc-300 sm:text-sm">
+        These fields control live editorial blocks: Hero, Dispatch, Build,
+        Timeline, Colophon, and Footer.
+      </div>
       <Field
         label="Full Name"
         value={content.fullName}
@@ -619,12 +672,12 @@ function SiteTab({
         onChange={(v) => updateSite("role", v)}
       />
       <Field
-        label="Hero Kicker"
+        label="Hero Sticker"
         value={content.heroKicker}
         onChange={(v) => updateSite("heroKicker", v)}
       />
       <Field
-        label="Hero Headline"
+        label="Hero Subhead"
         value={content.heroHeadline}
         onChange={(v) => updateSite("heroHeadline", v)}
       />
@@ -691,18 +744,18 @@ function SiteTab({
         onChange={(v) => updateSite("landingSecondaryCtaUrl", v)}
       />
       <Field
-        label="About Title"
+        label="Dispatch Title"
         value={content.aboutTitle}
         onChange={(v) => updateSite("aboutTitle", v)}
       />
       <Area
-        label="About Paragraph One"
+        label="Dispatch Intro"
         value={content.aboutParagraphOne}
         onChange={(v) => updateSite("aboutParagraphOne", v)}
         rows={3}
       />
       <Area
-        label="About Paragraph Two"
+        label="Dispatch Body"
         value={content.aboutParagraphTwo}
         onChange={(v) => updateSite("aboutParagraphTwo", v)}
         rows={3}
@@ -718,7 +771,7 @@ function SiteTab({
         onChange={(v) => updateSite("projectsTitle", v)}
       />
       <Field
-        label="Skills Title"
+        label="Build Title"
         value={content.skillsTitle}
         onChange={(v) => updateSite("skillsTitle", v)}
       />
@@ -728,18 +781,18 @@ function SiteTab({
         onChange={(v) => updateSite("certificationsTitle", v)}
       />
       <Field
-        label="Contact Title"
+        label="Colophon Label"
         value={content.contactTitle}
         onChange={(v) => updateSite("contactTitle", v)}
       />
       <Area
-        label="Contact Description"
+        label="Colophon Body"
         value={content.contactDescription}
         onChange={(v) => updateSite("contactDescription", v)}
         rows={3}
       />
       <Field
-        label="Footer Text"
+        label="Footer Line"
         value={content.footerText}
         onChange={(v) => updateSite("footerText", v)}
       />
@@ -802,6 +855,34 @@ function SiteTab({
               label="Level"
               value={item.level}
               onChange={(v) => setItem({ ...item, level: v })}
+            />
+          </>
+        )}
+      />
+
+      <div className="rounded-xl border border-white/15 bg-[#0e1014] px-3 py-2.5 text-xs text-zinc-300 sm:text-sm">
+        Text Overrides key:value lets you customize labels without code edits.
+        Examples: nav.work, timeline.readMore, github.openLabel,
+        colophon.cvLabel. You can add locale-specific keys like nav.work.fr.
+      </div>
+
+      <SimpleObjectArrayEditor
+        title="Text Overrides (key:value)"
+        entries={content.contentOverrides ?? []}
+        createItem={() => ({ key: "", value: "" })}
+        onChange={(items) => updateSite("contentOverrides", items)}
+        render={(item, setItem) => (
+          <>
+            <Field
+              label="Key"
+              value={item.key}
+              onChange={(v) => setItem({ ...item, key: v })}
+            />
+            <Area
+              label="Value"
+              value={item.value}
+              onChange={(v) => setItem({ ...item, value: v })}
+              rows={2}
             />
           </>
         )}
@@ -1443,9 +1524,9 @@ function ItemCard({
   children: React.ReactNode;
 }) {
   return (
-    <article className="rounded-xl border border-white/15 bg-[#0f1114] p-3">
+    <article className="rounded-2xl border border-white/15 bg-[#0e1116] p-3 sm:p-4">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="break-words text-sm font-bold text-[#78ffe0]">
+        <h3 className="break-words font-mono text-sm font-bold uppercase tracking-[0.06em] text-(--accent-mint)">
           {title}
         </h3>
         <div className="flex flex-wrap gap-1">
@@ -1503,14 +1584,14 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">
+      <span className="mb-1.5 block font-mono text-xs uppercase tracking-[0.14em] text-zinc-200/90">
         {label}
       </span>
       <input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-white/20 bg-[#14171c] px-3 py-2 text-sm text-white outline-none focus:border-[#3cffd0]"
+        className="min-h-11 w-full rounded-xl border border-white/20 bg-[#0f1318] px-3.5 py-2.5 text-[0.95rem] text-white outline-none transition focus:border-(--accent-mint) focus:ring-2 focus:ring-(--accent-mint)/25"
       />
     </label>
   );
@@ -1529,14 +1610,14 @@ function Area({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">
+      <span className="mb-1.5 block font-mono text-xs uppercase tracking-[0.14em] text-zinc-200/90">
         {label}
       </span>
       <textarea
         value={value}
         rows={rows}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-white/20 bg-[#14171c] px-3 py-2 text-sm text-white outline-none focus:border-[#3cffd0]"
+        className="w-full rounded-xl border border-white/20 bg-[#0f1318] px-3.5 py-2.5 text-[0.95rem] leading-[1.5] text-white outline-none transition focus:border-(--accent-mint) focus:ring-2 focus:ring-(--accent-mint)/25"
       />
     </label>
   );
@@ -1552,11 +1633,12 @@ function Toggle({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <label className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-[#14171c] px-3 py-2 text-sm">
+    <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-[#0f1318] px-3.5 py-2.5 text-sm text-zinc-100">
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 accent-(--accent-mint)"
       />
       <span>{label}</span>
     </label>
@@ -1576,13 +1658,13 @@ function Select({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-zinc-300">
+      <span className="mb-1.5 block font-mono text-xs uppercase tracking-[0.14em] text-zinc-200/90">
         {label}
       </span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-lg border border-white/20 bg-[#14171c] px-3 py-2 text-sm text-white outline-none focus:border-[#3cffd0]"
+        className="min-h-11 w-full rounded-xl border border-white/20 bg-[#0f1318] px-3.5 py-2.5 text-[0.95rem] text-white outline-none transition focus:border-(--accent-mint) focus:ring-2 focus:ring-(--accent-mint)/25"
       >
         {options.map((option) => (
           <option key={option} value={option}>
@@ -1608,9 +1690,11 @@ function SimpleObjectArrayEditor<T extends object>({
   render: (entry: T, setEntry: (entry: T) => void) => React.ReactNode;
 }) {
   return (
-    <div className="space-y-2 rounded-xl border border-white/15 bg-[#0f1114] p-3">
+    <div className="space-y-2 rounded-2xl border border-white/15 bg-[#0e1116] p-3 sm:p-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-bold text-[#78ffe0]">{title}</h4>
+        <h4 className="font-mono text-sm font-bold uppercase tracking-[0.08em] text-(--accent-mint)">
+          {title}
+        </h4>
         <button
           type="button"
           className="rounded-full border border-white/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]"

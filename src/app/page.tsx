@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getGithubSnapshot } from "@/lib/github";
-import { formatRange } from "@/lib/format";
 import { getPortfolioContent } from "@/lib/portfolio";
 import { ResponsiveNavbar } from "@/components/site/ResponsiveNavbar";
 import type {
@@ -12,58 +11,6 @@ import type {
   SiteSettings,
   SkillGroup,
 } from "@/lib/types";
-
-type ProjectPalette = {
-  card: string;
-  text: string;
-  border: string;
-  pill: string;
-};
-
-const projectPalettes: Record<ProjectItem["colorVariant"], ProjectPalette> = {
-  mint: {
-    card: "bg-[var(--verge-mint)]",
-    text: "text-black",
-    border: "border-[var(--verge-mint-deep)]",
-    pill: "bg-black text-[var(--verge-mint)]",
-  },
-  ultraviolet: {
-    card: "bg-[var(--verge-ultraviolet)]",
-    text: "text-white",
-    border: "border-[var(--verge-ultraviolet)]",
-    pill: "bg-white text-[var(--verge-ultraviolet)]",
-  },
-  yellow: {
-    card: "bg-[var(--verge-yellow)]",
-    text: "text-black",
-    border: "border-[#d1b100]",
-    pill: "bg-black text-[var(--verge-yellow)]",
-  },
-  orange: {
-    card: "bg-[var(--verge-orange)]",
-    text: "text-black",
-    border: "border-[#dd7300]",
-    pill: "bg-black text-[var(--verge-orange)]",
-  },
-  pink: {
-    card: "bg-[var(--verge-pink)]",
-    text: "text-black",
-    border: "border-[#ce0f74]",
-    pill: "bg-black text-[var(--verge-pink)]",
-  },
-  slate: {
-    card: "bg-[var(--verge-slate)]",
-    text: "text-white",
-    border: "border-white/90",
-    pill: "bg-[var(--verge-mint)] text-black",
-  },
-  white: {
-    card: "bg-white",
-    text: "text-black",
-    border: "border-white",
-    pill: "bg-black text-white",
-  },
-};
 
 const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
@@ -88,11 +35,6 @@ type UiCopy = {
   topRepositories: string;
   noRepositoryDescription: string;
   mixedLanguage: string;
-  responseTime: string;
-  emailMe: string;
-  callMe: string;
-  downloadCv: string;
-  contactMe: string;
   breadcrumbHome: string;
 };
 
@@ -114,11 +56,6 @@ const uiCopyByLocale: Record<Locale, UiCopy> = {
     topRepositories: "Top Repositories",
     noRepositoryDescription: "No description provided yet.",
     mixedLanguage: "Mixed",
-    responseTime: "Fast response: usually within 24 hours.",
-    emailMe: "Email Me",
-    callMe: "Call Me",
-    downloadCv: "Download CV",
-    contactMe: "Contact Me",
     breadcrumbHome: "Home",
   },
   fr: {
@@ -138,18 +75,20 @@ const uiCopyByLocale: Record<Locale, UiCopy> = {
     topRepositories: "Top Depots",
     noRepositoryDescription: "Description non renseignee.",
     mixedLanguage: "Mixte",
-    responseTime: "Reponse rapide: en general sous 24 heures.",
-    emailMe: "M'envoyer un email",
-    callMe: "M'appeler",
-    downloadCv: "Telecharger CV",
-    contactMe: "Me contacter",
     breadcrumbHome: "Accueil",
   },
 };
 
 function localizeSite(site: SiteSettings, locale: Locale): SiteSettings {
+  const contentOverrides = Array.isArray(site.contentOverrides)
+    ? site.contentOverrides
+    : [];
+
   if (locale === "en") {
-    return site;
+    return {
+      ...site,
+      contentOverrides,
+    };
   }
 
   return {
@@ -185,13 +124,49 @@ function localizeSite(site: SiteSettings, locale: Locale): SiteSettings {
       language: translateEnToFr(language.language),
       level: translateEnToFr(language.level),
     })),
+    contentOverrides: contentOverrides.map((item) => {
+      if (item.key.endsWith(".fr") || item.key.endsWith(".en")) {
+        return item;
+      }
+
+      return {
+        ...item,
+        value: translateEnToFr(item.value),
+      };
+    }),
+  };
+}
+
+function createTextResolver(site: SiteSettings, locale: Locale) {
+  const contentOverrides = Array.isArray(site.contentOverrides)
+    ? site.contentOverrides
+    : [];
+
+  const values = new Map(
+    contentOverrides
+      .map((item) => [item.key.trim(), item.value.trim()] as const)
+      .filter(([key, value]) => key.length > 0 && value.length > 0),
+  );
+
+  return (key: string, fallback: string) => {
+    const localeValue = values.get(`${key}.${locale}`);
+    if (localeValue) {
+      return localeValue;
+    }
+
+    const genericValue = values.get(key);
+    if (genericValue) {
+      return genericValue;
+    }
+
+    return fallback;
   };
 }
 
 const enToFrMap: Array<[string, string]> = [
   [
-    "I build secure, scalable full-stack systems with measurable impact.",
-    "Je construis des systemes full-stack securises et evolutifs avec un impact mesurable.",
+    "I build full-stack systems that ship and stay stable in production.",
+    "Je construis des systemes full-stack qui sortent en prod et restent stables.",
   ],
   [
     "Engineering student at EILCO (Bac+5) with hands-on delivery across Laravel, MERN, and Spring ecosystems. I focus on clean architecture, security-first implementation, and practical performance gains.",
@@ -286,7 +261,10 @@ const enToFrMap: Array<[string, string]> = [
   ["Certs", "Certifs"],
   ["Contact", "Contact"],
   ["Present", "En cours"],
-  ["Building robust software", "Conception de logiciels robustes"],
+  [
+    "Building production-grade software",
+    "Conception de logiciels de production",
+  ],
   ["Open to", "Ouvert a"],
   ["internships", "stages"],
 ];
@@ -375,15 +353,19 @@ export async function buildPortfolioMetadata(
   const localizedContent = localizeContent(content, locale);
   const { site } = localizedContent;
   const { canonical, absolute } = getLocalePaths(locale);
-  const titleSuffix =
-    locale === "fr" ? "Portfolio Officiel" : "Official Portfolio";
+  const title =
+    locale === "fr"
+      ? "Youssef Selk — Developpeur Full-Stack · Stage Juin 2026"
+      : "Youssef Selk — Full-Stack Developer · Internship Jun 2026";
   const description =
     locale === "fr"
-      ? `Site officiel de ${site.fullName}. ${site.heroHeadline}`
-      : `Official website of ${site.fullName}. ${site.heroHeadline}`;
+      ? "Portfolio de Youssef Selk: projets backend/full-stack, preuves terrain et disponibilite stage juin 2026 puis alternance septembre 2026."
+      : "Portfolio of Youssef Selk: backend/full-stack projects, field-tested outcomes, and availability for internship in June 2026 then apprenticeship in September 2026.";
 
   return {
-    title: `${site.fullName} | ${titleSuffix}`,
+    title: {
+      absolute: title,
+    },
     description,
     keywords: [
       site.fullName,
@@ -409,8 +391,8 @@ export async function buildPortfolioMetadata(
       },
     },
     openGraph: {
-      title: `${site.fullName} | ${titleSuffix}`,
-      description: `${site.heroHeadline}`,
+      title,
+      description,
       url: absolute,
       type: "website",
       locale: locale === "fr" ? "fr_FR" : "en_US",
@@ -424,9 +406,9 @@ export async function buildPortfolioMetadata(
       ],
     },
     twitter: {
-      card: "summary",
-      title: `${site.fullName} | ${titleSuffix}`,
-      description: `${site.heroHeadline}`,
+      card: "summary_large_image",
+      title,
+      description,
       images: [`${siteUrl}/twitter-image`],
     },
   };
@@ -452,11 +434,19 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
   const { absolute } = getLocalePaths(locale);
   const translateByLocale = (text: string) =>
     locale === "fr" ? translateEnToFr(text) : text;
+  const portfolioSummary =
+    locale === "fr"
+      ? "Portfolio backend/full-stack de Youssef Selk avec resultats terrain, approche securite et disponibilite stage juin 2026 puis alternance septembre 2026."
+      : "Youssef Selk backend/full-stack portfolio with field-tested outcomes, security-first delivery, and availability for internship in June 2026 then apprenticeship in September 2026.";
 
-  const { experiences, education, projects, skillGroups, certifications } =
+  const { experiences, education, projects, certifications, skillGroups } =
     content;
-  const phoneDigits = site.phone.replace(/\D/g, "");
-  const whatsappUrl = phoneDigits ? `https://wa.me/${phoneDigits}` : null;
+  const alumniOf = Array.from(
+    new Set(education.map((item) => item.school)),
+  ).map((school) => ({
+    "@type": "CollegeOrUniversity",
+    name: school,
+  }));
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -467,7 +457,6 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
     url: siteUrl,
     mainEntityOfPage: absolute,
     email: `mailto:${site.email}`,
-    telephone: site.phone,
     address: {
       "@type": "PostalAddress",
       addressLocality: site.location,
@@ -477,7 +466,8 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
       site.githubUrl,
       ...site.socialLinks.map((social) => social.url).filter(Boolean),
     ],
-    description: site.heroHeadline,
+    alumniOf,
+    description: portfolioSummary,
     knowsAbout: [
       "Full-Stack Development",
       "Artificial Intelligence",
@@ -508,7 +498,7 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
     "@id": `${absolute}/#webpage`,
     url: absolute,
     name: `${site.fullName} | ${locale === "fr" ? "Portfolio Officiel" : "Official Portfolio"}`,
-    description: site.heroHeadline,
+    description: portfolioSummary,
     isPartOf: {
       "@id": `${siteUrl}/#website`,
     },
@@ -529,11 +519,208 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
     ],
   };
 
-  const contactSubject = encodeURIComponent(
-    locale === "fr"
-      ? "Opportunite stage ou alternance pour Youssef Selk"
-      : "Opportunity for Youssef Selk",
+  const text = createTextResolver(site, locale);
+  const heroSubhead = site.heroHeadline.trim() || site.heroDescription.trim();
+  const heroSticker =
+    site.heroKicker.trim() ||
+    (locale === "fr"
+      ? "Etudiant en genie informatique / EILCO"
+      : "Computer Engineering Student / EILCO");
+  const heroStats =
+    site.stats.length > 0
+      ? site.stats.slice(0, 3).map((stat) => ({
+          value: stat.value,
+          label: stat.label,
+          detail: "",
+        }))
+      : locale === "fr"
+        ? [
+            {
+              value: "+20%",
+              label: "Vitesse Equipe",
+              detail: "Chez SMTM, en Agile",
+            },
+            {
+              value: "-30%",
+              label: "Regressions",
+              detail: "Avec PHPUnit",
+            },
+            {
+              value: "+40%",
+              label: "Productivite",
+              detail: "Presence QR a l'UIR",
+            },
+          ]
+        : [
+            {
+              value: "+20%",
+              label: "Team Velocity",
+              detail: "At SMTM, Agile",
+            },
+            {
+              value: "-30%",
+              label: "Regressions",
+              detail: "Via PHPUnit",
+            },
+            {
+              value: "+40%",
+              label: "Productivity",
+              detail: "QR Attendance",
+            },
+          ];
+  const featuredProjects = [...projects]
+    .sort((a, b) => a.order - b.order)
+    .slice(0, 6);
+  const [case01, case02, case03, case04, case05, case06] = featuredProjects;
+  const getProjectOutcome = (project?: ProjectItem) => {
+    if (!project) {
+      return "";
+    }
+
+    return project.highlights[0] || project.summary || project.details;
+  };
+  const dispatchLabel = text("dispatch.label", "Dispatch · 01");
+  const dispatchTitle = site.aboutTitle;
+  const dispatchIntro = site.aboutParagraphOne;
+  const dispatchBody = site.aboutParagraphTwo;
+  const dispatchQuote = site.role;
+  const languagesLine =
+    site.languages.length > 0
+      ? `${locale === "fr" ? "Langues" : "Fluent in"}: ${site.languages
+          .map((item) => `${item.language} (${item.level})`)
+          .join(" · ")}.`
+      : locale === "fr"
+        ? "Langues: francais (C2) · arabe (natif) · anglais (TOEIC 855, C1)."
+        : "Fluent in: French (C2) · Arabic (native) · English (TOEIC 855, C1).";
+  const buildLabel = text("build.label", "Build · Table of Contents");
+  const buildTitle = site.skillsTitle;
+  const buildRows = [...skillGroups]
+    .sort((a, b) => a.order - b.order)
+    .map((group) => ({
+      label: group.title,
+      copy: group.skills.join(" · "),
+    }))
+    .filter((row) => row.copy.trim().length > 0);
+  const timelineReadMore = text(
+    "timeline.readMore",
+    locale === "fr" ? "Lire plus" : "Read more",
   );
+  const timelineEntries = [
+    ...experiences.map((item) => ({
+      id: item._id,
+      startDate: item.startDate,
+      period: `${new Date(item.startDate).getFullYear()} - ${
+        item.isCurrent
+          ? text("timeline.present", locale === "fr" ? "En cours" : "Present")
+          : new Date(item.endDate || item.startDate).getFullYear()
+      }`,
+      year: String(new Date(item.startDate).getFullYear()),
+      role: item.title,
+      org: `${item.company} · ${item.location}`,
+      outcome: item.summary,
+      details: item.highlights,
+    })),
+    ...education.map((item) => ({
+      id: item._id,
+      startDate: item.startDate,
+      period: `${new Date(item.startDate).getFullYear()} - ${new Date(item.endDate || item.startDate).getFullYear()}`,
+      year: String(new Date(item.startDate).getFullYear()),
+      role: item.degree,
+      org: `${item.school} · ${item.location}`,
+      outcome: item.details,
+      details: [item.details, item.honors].filter(Boolean) as string[],
+    })),
+  ].sort(
+    (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+  );
+  const timelineYears = timelineEntries
+    .map((entry) => Number(entry.year))
+    .filter((year) => Number.isFinite(year));
+  const timelineLabelPrefix = text("timeline.labelPrefix", "Timeline");
+  const timelineLabel =
+    timelineYears.length > 0
+      ? `${timelineLabelPrefix} · ${Math.min(...timelineYears)} - ${Math.max(...timelineYears)}`
+      : timelineLabelPrefix;
+  const timelineTitle = site.timelineTitle;
+  const colophonLabel = site.contactTitle;
+  const colophonBody = site.contactDescription;
+  const colophonMailSubject = text(
+    "colophon.mailSubject",
+    `${site.fullName} · Contact`,
+  );
+  const primaryCtaLabel =
+    site.landingPrimaryCtaLabel.trim() ||
+    (locale === "fr" ? "Telecharger CV" : "Download CV");
+  const primaryCtaUrl = site.landingPrimaryCtaUrl.trim() || "#work";
+  const primaryCtaIsDownload = /\.pdf($|[?#])/i.test(primaryCtaUrl);
+  const secondaryCtaLabel =
+    site.landingSecondaryCtaLabel.trim() ||
+    (locale === "fr" ? "Lire les projets" : "Read the work");
+  const secondaryCtaUrl = site.landingSecondaryCtaUrl.trim() || "#work";
+  const navLabelOverrides = {
+    dispatch: text("nav.dispatch", locale === "fr" ? "Dispatch" : "Dispatch"),
+    work: text("nav.work", locale === "fr" ? "Projets" : "Work"),
+    build: text("nav.build", locale === "fr" ? "Stack" : "Build"),
+    timeline: text("nav.timeline", locale === "fr" ? "Parcours" : "Timeline"),
+    colophon: text("nav.colophon", "Colophon"),
+  };
+  const navStickyContactLabel = text("nav.contact", "Contact");
+  const workKicker = text(
+    "work.kicker",
+    locale === "fr" ? "Featured · Edition 2026" : "Featured · Issue 2026",
+  );
+  const case01State = text(
+    "work.case01State",
+    locale === "fr" ? "En production" : "In production",
+  );
+  const case02State = text(
+    "work.case02State",
+    locale === "fr" ? "Publie" : "Published",
+  );
+  const case03State = text(
+    "work.case03State",
+    locale === "fr" ? "Actif" : "Active",
+  );
+  const workRepoLabel = text(
+    "work.repoLabel",
+    locale === "fr" ? "Depot" : "Repository",
+  );
+  const workLiveLabel = text(
+    "work.liveLabel",
+    locale === "fr" ? "Live" : "Live",
+  );
+  const workPreviewTitle = text("work.previewTitle", "Preview");
+  const workPreviewMeta = text(
+    "work.previewMeta",
+    "Roles · Events · Validation",
+  );
+  const githubOverviewLabel = text(
+    "github.overviewLabel",
+    uiCopy.githubOverview,
+  );
+  const githubPublicReposLabel = text(
+    "github.publicReposLabel",
+    uiCopy.publicRepos,
+  );
+  const githubFollowersLabel = text("github.followersLabel", uiCopy.followers);
+  const githubFollowingLabel = text("github.followingLabel", uiCopy.following);
+  const githubOpenLabel = text("github.openLabel", uiCopy.openGithub);
+  const githubTopReposLabel = text(
+    "github.topReposLabel",
+    uiCopy.topRepositories,
+  );
+  const githubNoDescriptionLabel = text(
+    "github.noDescriptionLabel",
+    uiCopy.noRepositoryDescription,
+  );
+  const githubMixedLanguageLabel = text(
+    "github.mixedLanguageLabel",
+    uiCopy.mixedLanguage,
+  );
+  const colophonCvLabel = text("colophon.cvLabel", "CV (PDF)");
+  const orcidLink =
+    site.socialLinks.find((item) => item.label.trim().toLowerCase() === "orcid")
+      ?.url || "https://orcid.org/0009-0006-9970-3188";
 
   return (
     <div className="verge-shell">
@@ -554,241 +741,366 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <div className="editorial-grid relative z-10 mx-auto w-full max-w-[1340px] px-3 pb-14 sm:px-6 lg:px-12">
-        <ResponsiveNavbar cvUrl={site.cvUrl} locale={locale} />
+        <ResponsiveNavbar
+          locale={locale}
+          linkLabelOverrides={navLabelOverrides}
+          stickyContactLabel={navStickyContactLabel}
+        />
 
         <main
           id="top"
-          className="space-y-12 pt-8 sm:space-y-16 sm:pt-12 lg:space-y-20 lg:pt-14"
+          className="space-y-12 pt-8 sm:space-y-16 sm:pt-12 lg:space-y-20 lg:pt-10"
         >
-          <section className="slide-up grid gap-6 lg:grid-cols-[1.55fr_1fr] lg:items-end lg:gap-8">
-            <div className="space-y-5 sm:space-y-6">
-              <p className="kicker text-[var(--verge-mint)]">
-                {site.heroKicker}
-              </p>
-              <h1 className="display-wordmark max-w-[13ch] text-4xl sm:text-6xl lg:text-[6.1rem]">
+          <section className="slide-up relative min-h-[calc(100vh-11.5rem)] pt-2 sm:pt-5">
+            <div className="relative max-w-[95rem]">
+              {/* Intentional: editorial imperfection, do not fix */}
+              <span className="hero-sticker absolute left-0 top-1 z-10 inline-flex bg-(--accent-mint) px-3 py-1.5 font-mono text-[0.58rem] font-bold uppercase tracking-[0.14em] text-black sm:px-4 sm:text-[0.64rem] lg:left-4">
+                {heroSticker}
+              </span>
+              <h1 className="display-wordmark pr-2 pt-8 text-[clamp(72px,14vw,220px)] text-foreground sm:pr-0 sm:pt-9">
                 {site.fullName}
               </h1>
-              <p className="max-w-3xl text-sm font-semibold uppercase tracking-[0.14em] text-[var(--verge-mint)] sm:text-base">
-                {site.role}
-              </p>
-              <p className="max-w-3xl text-base font-semibold leading-tight text-white sm:text-2xl">
-                {site.heroHeadline}
-              </p>
-              <p className="max-w-3xl text-sm leading-relaxed text-[#d4d4d4] sm:text-lg">
-                {site.heroDescription}
-              </p>
-              <p className="max-w-2xl rounded-[22px] border border-[var(--verge-ultraviolet)] bg-[rgba(82,0,255,0.16)] px-4 py-3 text-xs leading-relaxed text-white sm:px-5 sm:py-4 sm:text-base">
-                {site.availability}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href={site.landingPrimaryCtaUrl}
-                  className="btn-solid focus-outline w-full rounded-full border border-transparent px-6 py-3 text-center font-mono text-xs font-bold uppercase tracking-[0.13em] text-black sm:w-auto sm:tracking-[0.16em]"
-                >
-                  {site.landingPrimaryCtaLabel}
-                </a>
-                <a
-                  href={site.landingSecondaryCtaUrl}
-                  className="btn-outline focus-outline w-full rounded-full border border-white px-6 py-3 text-center font-mono text-xs font-bold uppercase tracking-[0.13em] text-white sm:w-auto sm:tracking-[0.16em]"
-                >
-                  {site.landingSecondaryCtaLabel}
-                </a>
-              </div>
             </div>
-            <aside className="story-pill interactive-card bg-[var(--verge-slate)] p-4 sm:p-6 lg:p-8">
-              <p className="kicker mb-4 text-[var(--verge-mint)]">
-                {uiCopy.profileSnapshot}
-              </p>
-              <p className="mb-1 text-sm text-[var(--verge-muted)]">
-                {site.role}
-              </p>
-              <p className="text-base text-white">{site.location}</p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {site.stats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="rounded-2xl border border-white/70 bg-[rgba(255,255,255,0.02)] p-4"
-                  >
-                    <p className="kicker mb-2 text-[var(--verge-muted)]">
-                      {stat.label}
-                    </p>
-                    <p className="text-2xl font-bold text-white">
-                      {stat.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </aside>
-          </section>
 
-          <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-8">
-            <div className="story-pill interactive-card bg-[var(--verge-canvas)] p-4 sm:p-6 lg:p-8">
-              <p className="kicker mb-3 text-[var(--verge-mint)]">
-                {site.aboutTitle}
-              </p>
-              <p className="mb-4 text-base leading-relaxed text-[#e5e5e5] sm:text-lg">
-                {site.aboutParagraphOne}
-              </p>
-              <p className="text-base leading-relaxed text-[#c8c8c8] sm:text-lg">
-                {site.aboutParagraphTwo}
-              </p>
+            <p className="mt-5 max-w-4xl text-[1.08rem] italic leading-[1.6] text-foreground sm:mt-6 sm:text-[1.2rem]">
+              {heroSubhead}
+            </p>
+
+            <div className="stats-strip mt-7 grid gap-4 py-4 sm:mt-8 sm:grid-cols-3 sm:gap-6 sm:py-5">
+              {heroStats.map((stat) => (
+                <article
+                  key={stat.label}
+                  className="border-l border-white/20 pl-4 first:border-l-0 first:pl-0"
+                >
+                  <p className="display-wordmark text-[clamp(56px,7vw,96px)] leading-[0.8] text-(--accent-mint)">
+                    {stat.value}
+                  </p>
+                  <p className="mt-2 font-mono text-[0.63rem] uppercase tracking-[0.16em] text-foreground">
+                    {stat.label}
+                  </p>
+                  {stat.detail ? (
+                    <p className="mt-1 font-mono text-[0.63rem] uppercase tracking-[0.14em] text-(--text-muted)">
+                      {stat.detail}
+                    </p>
+                  ) : null}
+                </article>
+              ))}
             </div>
-            <div className="story-pill interactive-card bg-white p-4 text-black sm:p-6 lg:p-8">
-              <p className="kicker mb-4 text-black">{uiCopy.languages}</p>
-              <div className="space-y-3">
-                {site.languages.map((language) => (
-                  <div
-                    key={language.language}
-                    className="flex items-center justify-between border-b border-black/20 pb-2"
-                  >
-                    <span className="font-semibold">{language.language}</span>
-                    <span className="kicker text-black">{language.level}</span>
-                  </div>
-                ))}
-              </div>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <a
+                href={primaryCtaUrl}
+                download={primaryCtaIsDownload || undefined}
+                className="editorial-link focus-outline text-foreground"
+              >
+                <span aria-hidden="true">→</span>
+                {primaryCtaLabel}
+              </a>
+              <a
+                href={secondaryCtaUrl}
+                className="editorial-link focus-outline text-foreground"
+              >
+                <span aria-hidden="true">→</span>
+                {secondaryCtaLabel}
+              </a>
             </div>
           </section>
 
-          <section id="timeline" className="space-y-6 sm:space-y-7">
+          <section id="dispatch" className="space-y-4 sm:space-y-5">
+            <p className="kicker text-(--text-muted)">{dispatchLabel}</p>
             <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
-              {site.timelineTitle}
+              {dispatchTitle}
             </h2>
-            <div className="section-rule" aria-hidden="true" />
-            <div className="grid gap-8 lg:grid-cols-2">
-              <TimelineColumn
-                label={uiCopy.professionalExperience}
-                items={experiences.map((item) => ({
-                  id: item._id,
-                  period: translateByLocale(
-                    formatRange(item.startDate, item.endDate, item.isCurrent),
-                  ),
-                  title: item.title,
-                  subtitle: `${item.company} - ${item.location}`,
-                  summary: item.summary,
-                  highlights: item.highlights,
-                }))}
-              />
-              <TimelineColumn
-                label={uiCopy.education}
-                items={education.map((item) => ({
-                  id: item._id,
-                  period: translateByLocale(
-                    formatRange(item.startDate, item.endDate),
-                  ),
-                  title: item.degree,
-                  subtitle: `${item.school} - ${item.location}`,
-                  summary: item.details,
-                  highlights: item.honors ? [item.honors] : [],
-                }))}
-              />
+            <div className="relative grid gap-6 lg:grid-cols-12 lg:gap-8">
+              {/* Intentional: editorial imperfection, do not fix */}
+              <article className="lg:col-span-8 max-w-[65ch] text-left">
+                <p className="dispatch-intro">{dispatchIntro}</p>
+                <p className="dispatch-body mt-5">{dispatchBody}</p>
+                <p className="mt-7 text-[1.02rem] italic leading-[1.6] text-(--text-muted)">
+                  {languagesLine}
+                </p>
+              </article>
+              {/* Intentional: editorial imperfection, do not fix */}
+              <aside className="lg:col-span-4 lg:-ml-7 lg:pt-10">
+                <p className="dispatch-pullquote">
+                  <span className="dispatch-quote-mark" aria-hidden="true">
+                    “
+                  </span>
+                  {dispatchQuote}
+                </p>
+              </aside>
             </div>
           </section>
 
-          <section id="projects" className="space-y-6 sm:space-y-7">
-            <div className="flex flex-wrap items-end justify-between gap-4">
+          <section id="timeline" className="space-y-4 sm:space-y-5">
+            <p className="kicker text-(--text-muted)">{timelineLabel}</p>
+            <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
+              {timelineTitle}
+            </h2>
+            <div className="timeline-strip" aria-hidden="true" />
+            <div className="relative mt-6 pb-3">
+              <span className="timeline-axis" aria-hidden="true" />
+              <div className="space-y-6 md:space-y-4">
+                {timelineEntries.map((entry, index) => (
+                  <article
+                    key={entry.id}
+                    className={`relative grid grid-cols-1 md:grid-cols-2 ${index % 2 === 1 ? "md:-mt-6" : ""}`}
+                  >
+                    <div
+                      className={`relative ${index % 2 === 0 ? "md:pr-10" : "md:col-start-2 md:pl-10"}`}
+                    >
+                      <span
+                        className={`display-wordmark absolute top-1 hidden text-[clamp(42px,5vw,72px)] text-(--accent-mint) md:block ${index % 2 === 0 ? "-right-8" : "-left-8"}`}
+                        aria-hidden="true"
+                      >
+                        {entry.year}
+                      </span>
+                      <article className="story-pill border border-white/30 bg-(--bg-elevated) p-5 sm:p-6">
+                        <p className="kicker text-(--text-muted)">
+                          {entry.period}
+                        </p>
+                        <h3 className="mt-3 text-[1.25rem] italic leading-[1.35] text-foreground sm:text-[1.38rem]">
+                          {entry.role}
+                        </h3>
+                        <p className="mt-2 font-mono text-[0.64rem] uppercase tracking-[0.15em] text-(--text-muted)">
+                          {entry.org}
+                        </p>
+                        <p className="mt-3 text-[1rem] leading-[1.6] text-foreground">
+                          {entry.outcome}
+                        </p>
+                        <details className="mt-4 timeline-details">
+                          <summary className="focus-outline inline-flex min-h-11 items-center cursor-pointer font-mono text-[0.66rem] uppercase tracking-[0.16em] text-(--accent-mint)">
+                            {timelineReadMore}
+                          </summary>
+                          <ul className="mt-3 space-y-2 text-[0.94rem] leading-[1.5] text-foreground">
+                            {entry.details.map((detail) => (
+                              <li key={detail} className="ml-5 list-disc">
+                                {detail}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      </article>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section id="work" className="space-y-6 sm:space-y-7">
+            <div className="space-y-2">
+              <p className="kicker text-(--text-muted)">{workKicker}</p>
               <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
                 {site.projectsTitle}
               </h2>
-              <p className="kicker text-[var(--verge-mint)]">
-                {uiCopy.caseStudies}
-              </p>
             </div>
             <div className="section-rule" aria-hidden="true" />
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {projects.map((project) => {
-                const palette = projectPalettes[project.colorVariant];
-
-                return (
-                  <article
-                    key={project._id}
-                    className={`story-pill interactive-card flex h-full flex-col border ${palette.card} ${palette.text} ${palette.border} p-5 sm:p-6`}
-                  >
-                    <div className="mb-4 flex items-center justify-between gap-2">
-                      <span
-                        className={`kicker rounded-full px-3 py-1 ${palette.pill}`}
-                      >
-                        {project.period}
-                      </span>
-                      {project.featured ? (
-                        <span className="kicker">{uiCopy.featured}</span>
-                      ) : null}
-                    </div>
-                    <h3 className="mb-3 text-xl font-black leading-tight sm:text-2xl">
-                      {project.title}
+            <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+              {case01 ? (
+                <article className="work-tile work-tile-hero col-span-12 border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-(--accent-ultraviolet) p-5 text-white sm:p-7 lg:p-10">
+                  <p className="work-kicker kicker text-white/80">
+                    {`Case 01 · ${case01.period} · ${case01State}`}
+                  </p>
+                  <div className="relative mt-5">
+                    <h3 className="display-wordmark max-w-[8ch] text-[clamp(48px,9vw,120px)] leading-[0.8]">
+                      {case01.title}
                     </h3>
-                    <p className="mb-4 text-sm leading-relaxed sm:text-base">
-                      {project.summary}
-                    </p>
-                    <p className="mb-5 text-sm leading-relaxed opacity-85">
-                      {project.details}
-                    </p>
-                    <div className="mb-4 flex flex-wrap gap-2">
-                      {project.stack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="max-w-full break-words rounded-full border border-current/30 px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.1em] sm:text-[0.68rem] sm:tracking-[0.14em]"
-                        >
-                          {tech}
-                        </span>
-                      ))}
+                    <div
+                      aria-hidden="true"
+                      className="absolute right-0 top-2 hidden w-[38%] max-w-76 rotate-2 border border-black/80 bg-[#24164a] shadow-[12px_12px_0_#000] lg:block"
+                    >
+                      <div className="aspect-3/4 bg-[#211244] p-4">
+                        <p className="kicker text-white/70">
+                          {workPreviewTitle}
+                        </p>
+                        <p className="mt-3 font-mono text-xs uppercase tracking-[0.14em] text-(--accent-mint)">
+                          {workPreviewMeta}
+                        </p>
+                      </div>
                     </div>
-                    <ul className="mb-5 space-y-2 text-sm">
-                      {project.highlights.map((highlight) => (
-                        <li key={highlight} className="leading-relaxed">
-                          - {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-auto flex flex-wrap gap-3">
-                      {project.repoUrl ? (
-                        <a
-                          href={project.repoUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="focus-outline rounded-full border border-current px-3 py-2 font-mono text-[0.58rem] font-bold uppercase tracking-[0.1em] sm:px-4 sm:text-[0.64rem] sm:tracking-[0.14em]"
-                        >
-                          {uiCopy.repository}
-                        </a>
-                      ) : null}
-                      {project.liveUrl ? (
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="focus-outline rounded-full border border-current px-3 py-2 font-mono text-[0.58rem] font-bold uppercase tracking-[0.1em] sm:px-4 sm:text-[0.64rem] sm:tracking-[0.14em]"
-                        >
-                          {uiCopy.live}
-                        </a>
-                      ) : null}
-                    </div>
+                  </div>
+                  <p className="mt-4 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-white/85">
+                    {case01.stack.slice(0, 3).join(" · ")}
+                  </p>
+                  <p className="mt-4 max-w-2xl text-[1.02rem] italic leading-[1.6] text-white/95 sm:text-[1.1rem]">
+                    {getProjectOutcome(case01)}
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-x-7 gap-y-3">
+                    {case01.repoUrl ? (
+                      <a
+                        href={case01.repoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="editorial-link focus-outline text-white"
+                      >
+                        <span aria-hidden="true">→</span>
+                        {workRepoLabel}
+                      </a>
+                    ) : null}
+                    {case01.liveUrl ? (
+                      <a
+                        href={case01.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="editorial-link focus-outline text-white"
+                      >
+                        <span aria-hidden="true">→</span>
+                        {workLiveLabel}
+                      </a>
+                    ) : null}
+                  </div>
+                </article>
+              ) : null}
+
+              {case03 ? (
+                <article className="work-tile col-span-12 border border-white/25 bg-black p-5 text-foreground sm:p-6 lg:col-span-7">
+                  <p className="work-kicker kicker text-(--text-muted)">
+                    {`Case 03 · ${case03.period} · ${case03State}`}
+                  </p>
+                  <h3 className="mt-4 display-wordmark text-[clamp(34px,5.2vw,78px)] leading-[0.84]">
+                    {case03.title}
+                  </h3>
+                  <pre
+                    aria-hidden="true"
+                    className="mt-4 overflow-hidden rounded-lg border border-(--accent-ultraviolet)/50 bg-(--bg-elevated) p-4 font-mono text-[10px] leading-[1.35] text-(--accent-ultraviolet)/85"
+                  >
+                    {`[ Linux ]──sync──┐
+                  ├─> core-bus.cpp ──> dispatcher
+[ Win ]────sync───┘
+
+event queue: 42
+latency: 8.2ms`}
+                  </pre>
+                  <p className="mt-4 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-(--text-muted)">
+                    {case03.stack.slice(0, 3).join(" · ")}
+                  </p>
+                  <p className="mt-3 max-w-2xl text-[1rem] italic leading-[1.6] text-foreground">
+                    {getProjectOutcome(case03)}
+                  </p>
+                </article>
+              ) : null}
+
+              {case02 ? (
+                <article className="work-tile relative col-span-12 border border-black/35 bg-(--accent-mint) p-5 text-black sm:p-6 lg:col-span-5">
+                  <p className="work-kicker kicker text-black/70">
+                    {`Case 02 · ${case02.period} · ${case02State}`}
+                  </p>
+                  <h3 className="mt-4 display-wordmark max-w-[9ch] text-[clamp(36px,4.8vw,66px)] leading-[0.85]">
+                    {case02.title}
+                  </h3>
+                  <p className="mt-4 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-black/70">
+                    {case02.stack.slice(0, 3).join(" · ")}
+                  </p>
+                  <p className="mt-3 text-[1rem] italic leading-[1.6] text-black/90">
+                    {getProjectOutcome(case02)}
+                  </p>
+                  <pre
+                    aria-hidden="true"
+                    className="pointer-events-none absolute bottom-3 right-3 max-w-[70%] overflow-hidden font-mono text-[10px] leading-[1.35] text-black/25"
+                  >
+                    {`task("review")
+  .agent("copilot")
+  .verify("tests")
+  .ship();`}
+                  </pre>
+                </article>
+              ) : null}
+
+              {case04 ? (
+                <>
+                  {/* Intentional: editorial imperfection, do not fix */}
+                  <article className="work-tile col-span-12 -rotate-2 border border-[#2b2524] bg-(--paper) p-5 text-black sm:p-6 lg:col-span-4">
+                    <p className="work-kicker kicker text-black/60">
+                      {locale === "fr"
+                        ? `Case 04 · ${case04.period}`
+                        : `Case 04 · ${case04.period}`}
+                    </p>
+                    <h3 className="mt-3 display-wordmark text-[clamp(28px,3.4vw,50px)] leading-[0.88]">
+                      {case04.title}
+                    </h3>
+                    <p className="mt-3 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-black/70">
+                      {case04.stack.slice(0, 4).join(" · ")}
+                    </p>
+                    <p className="mt-3 text-[0.97rem] italic leading-[1.6] text-black/85">
+                      {getProjectOutcome(case04)}
+                    </p>
                   </article>
-                );
-              })}
+                </>
+              ) : null}
+
+              {case05 ? (
+                <article className="work-tile col-span-12 border border-white/30 bg-(--bg-elevated) p-5 text-foreground sm:p-6 lg:col-span-3">
+                  <p className="work-kicker kicker text-(--text-muted)">
+                    {locale === "fr"
+                      ? `Case 05 · ${case05.period}`
+                      : `Case 05 · ${case05.period}`}
+                  </p>
+                  <h3 className="mt-3 display-wordmark text-[clamp(24px,2.7vw,38px)] leading-[0.9]">
+                    {case05.title}
+                  </h3>
+                  <p className="mt-3 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-(--text-muted)">
+                    {case05.stack.slice(0, 3).join(" · ")}
+                  </p>
+                  <p className="mt-3 text-[0.95rem] italic leading-[1.6] text-foreground">
+                    {getProjectOutcome(case05)}
+                  </p>
+                </article>
+              ) : null}
+
+              {case06 ? (
+                <article className="work-tile col-span-12 border border-[color-mix(in_srgb,var(--text)_30%,transparent)] bg-black p-5 text-foreground sm:p-6 lg:col-span-5">
+                  <p className="work-kicker kicker text-(--text-muted)">
+                    {locale === "fr"
+                      ? `Case 06 · ${case06.period}`
+                      : `Case 06 · ${case06.period}`}
+                  </p>
+                  <h3 className="mt-3 display-wordmark text-[clamp(32px,3.8vw,52px)] leading-[0.86]">
+                    {case06.title}
+                  </h3>
+                  <p className="mt-3 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-(--text-muted)">
+                    {case06.stack.slice(0, 4).join(" · ")}
+                  </p>
+                  <p className="mt-3 text-[0.98rem] italic leading-[1.6] text-foreground">
+                    {getProjectOutcome(case06)}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                    {case06.repoUrl ? (
+                      <a
+                        href={case06.repoUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="editorial-link focus-outline text-foreground"
+                      >
+                        <span aria-hidden="true">→</span>
+                        {workRepoLabel}
+                      </a>
+                    ) : null}
+                  </div>
+                </article>
+              ) : null}
             </div>
           </section>
 
-          <section id="skills" className="space-y-6 sm:space-y-7">
+          <section id="build" className="space-y-6 sm:space-y-7">
+            <p className="kicker text-(--text-muted)">{buildLabel}</p>
             <h2 className="section-heading display-wordmark text-3xl sm:text-5xl lg:text-6xl">
-              {site.skillsTitle}
+              {buildTitle}
             </h2>
             <div className="section-rule" aria-hidden="true" />
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {skillGroups.map((group, index) => (
-                <article
-                  key={group._id}
-                  className={`story-pill interactive-card p-5 sm:p-6 ${index % 3 === 0 ? "bg-[var(--verge-slate)]" : "bg-[var(--verge-canvas)]"}`}
-                >
-                  <h3 className="mb-4 text-xl font-bold">{group.title}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {group.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="max-w-full break-words rounded-full border border-white/70 px-3 py-1 font-mono text-[0.58rem] uppercase tracking-[0.09em] sm:text-[0.65rem] sm:tracking-[0.12em]"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+            <div className="story-pill overflow-hidden border border-white/30 bg-(--bg-elevated)">
+              {(buildRows.length > 0
+                ? buildRows
+                : [
+                    {
+                      label: "Stack",
+                      copy: "Laravel · Spring Boot · Next.js · PostgreSQL",
+                    },
+                  ]
+              ).map((row) => (
+                <article key={row.label} className="build-row">
+                  <p className="build-row-label">{row.label}</p>
+                  <p className="build-row-copy">{row.copy}</p>
                 </article>
               ))}
             </div>
@@ -797,7 +1109,7 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
           <section className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
             <article className="story-pill interactive-card bg-[var(--verge-slate)] p-4 sm:p-6 lg:p-8">
               <p className="kicker mb-3 text-[var(--verge-mint)]">
-                {uiCopy.githubOverview}
+                {githubOverviewLabel}
               </p>
               <h2 className="mb-2 text-3xl font-black leading-tight sm:text-4xl">
                 {github.profile.name}
@@ -807,15 +1119,15 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
               </p>
               <div className="mb-6 flex flex-wrap gap-3">
                 <Badge
-                  label={uiCopy.publicRepos}
+                  label={githubPublicReposLabel}
                   value={String(github.profile.public_repos)}
                 />
                 <Badge
-                  label={uiCopy.followers}
+                  label={githubFollowersLabel}
                   value={String(github.profile.followers)}
                 />
                 <Badge
-                  label={uiCopy.following}
+                  label={githubFollowingLabel}
                   value={String(github.profile.following)}
                 />
               </div>
@@ -825,11 +1137,11 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
                 rel="noreferrer"
                 className="focus-outline inline-flex rounded-full border border-[var(--verge-mint)] px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.14em] text-[var(--verge-mint)]"
               >
-                {uiCopy.openGithub}
+                {githubOpenLabel}
               </a>
             </article>
             <article className="story-pill interactive-card bg-white p-4 text-black sm:p-6 lg:p-8">
-              <p className="kicker mb-4 text-black">{uiCopy.topRepositories}</p>
+              <p className="kicker mb-4 text-black">{githubTopReposLabel}</p>
               <div className="space-y-4">
                 {github.topRepos.slice(0, 4).map((repo) => (
                   <a
@@ -845,10 +1157,10 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
                     <p className="mb-2 text-sm opacity-80">
                       {repo.description
                         ? translateByLocale(repo.description)
-                        : uiCopy.noRepositoryDescription}
+                        : githubNoDescriptionLabel}
                     </p>
                     <p className="kicker text-black/70">
-                      {repo.language || uiCopy.mixedLanguage}
+                      {repo.language || githubMixedLanguageLabel}
                     </p>
                   </a>
                 ))}
@@ -877,102 +1189,61 @@ export async function PortfolioPage({ locale }: { locale: Locale }) {
           </section>
 
           <section
-            id="contact"
-            className="story-pill interactive-card bg-[var(--verge-mint)] p-5 text-black sm:p-8 lg:p-10"
+            id="colophon"
+            className="story-pill border border-white/30 bg-(--paper) p-5 text-black sm:p-8 lg:p-10"
           >
-            <p className="kicker mb-3 text-black">{site.contactTitle}</p>
-            <p className="mb-6 max-w-3xl text-lg font-bold leading-tight sm:text-3xl">
-              {site.contactDescription}
+            <p className="kicker mb-4 text-black/70">{colophonLabel}</p>
+            <p className="max-w-4xl text-[1.04rem] leading-[1.7] text-black/90 sm:text-[1.12rem]">
+              {colophonBody}
             </p>
-            <p className="mb-6 text-sm font-semibold uppercase tracking-[0.12em] text-black/80 sm:text-base">
-              {uiCopy.responseTime}
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <a
-                href={`mailto:${site.email}?subject=${contactSubject}`}
-                className="focus-outline rounded-full border border-black px-4 py-2.5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.1em] transition-colors duration-200 hover:bg-black hover:text-[var(--verge-mint)] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.15em]"
-              >
-                {uiCopy.emailMe}
-              </a>
-              <a
-                href={`tel:${site.phone}`}
-                className="focus-outline rounded-full border border-black px-4 py-2.5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.1em] transition-colors duration-200 hover:bg-black hover:text-[var(--verge-mint)] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.15em]"
-              >
-                {uiCopy.callMe}
-              </a>
-              {whatsappUrl ? (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="focus-outline rounded-full border border-black px-4 py-2.5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.1em] transition-colors duration-200 hover:bg-black hover:text-[var(--verge-mint)] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.15em]"
-                >
-                  WhatsApp
-                </a>
-              ) : null}
-              <a
-                href={site.linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="focus-outline rounded-full border border-black px-4 py-2.5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.1em] transition-colors duration-200 hover:bg-black hover:text-[var(--verge-mint)] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.15em]"
-              >
-                LinkedIn
-              </a>
+            <a
+              href={`mailto:${site.email}?subject=${encodeURIComponent(colophonMailSubject)}`}
+              className="mt-7 inline-block text-[clamp(1.6rem,4.1vw,2.7rem)] font-semibold leading-[1.1] text-black underline decoration-[2px] underline-offset-[7px] hover:text-black focus-visible:text-black"
+            >
+              {site.email}
+            </a>
+            <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[0.66rem] uppercase tracking-[0.16em] text-black/65">
               <a
                 href={site.githubUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="focus-outline rounded-full border border-black px-4 py-2.5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.1em] transition-colors duration-200 hover:bg-black hover:text-[var(--verge-mint)] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.15em]"
+                className="focus-outline inline-flex min-h-11 items-center hover:text-black"
               >
                 GitHub
               </a>
+              <span aria-hidden="true">·</span>
+              <a
+                href={site.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="focus-outline inline-flex min-h-11 items-center hover:text-black"
+              >
+                LinkedIn
+              </a>
+              <span aria-hidden="true">·</span>
+              <a
+                href={orcidLink}
+                target="_blank"
+                rel="noreferrer"
+                className="focus-outline inline-flex min-h-11 items-center hover:text-black"
+              >
+                ORCID
+              </a>
+              <span aria-hidden="true">·</span>
               <a
                 href={site.cvUrl}
                 download
-                className="focus-outline rounded-full border border-black px-4 py-2.5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.1em] transition-colors duration-200 hover:bg-black hover:text-[var(--verge-mint)] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.15em]"
+                className="focus-outline inline-flex min-h-11 items-center hover:text-black"
               >
-                {uiCopy.downloadCv}
+                {colophonCvLabel}
               </a>
-            </div>
-            <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold text-black/80">
-              <a
-                href={`mailto:${site.email}`}
-                className="transition-colors duration-200 underline-offset-4 hover:text-black hover:underline"
-              >
-                {site.email}
-              </a>
-              <span>-</span>
-              <a
-                href={`tel:${site.phone}`}
-                className="transition-colors duration-200 underline-offset-4 hover:text-black hover:underline"
-              >
-                {site.phone}
-              </a>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {site.socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="focus-outline rounded-full bg-black px-3 py-2 font-mono text-[0.58rem] uppercase tracking-[0.09em] text-[var(--verge-mint)] transition-colors duration-200 hover:bg-white hover:text-black sm:px-4 sm:text-[0.68rem] sm:tracking-[0.14em]"
-                >
-                  {social.label}
-                </a>
-              ))}
             </div>
           </section>
         </main>
 
         <footer className="mt-12 border-t border-white/20 py-6 text-xs text-[#a9a9a9] sm:mt-20 sm:py-7">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <p className="max-w-2xl">{site.footerText}</p>
-            <div className="flex flex-wrap items-center gap-2 font-mono uppercase tracking-[0.12em]">
-              <span>{site.location}</span>
-              <span>-</span>
-              <span>{site.phone}</span>
-            </div>
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center font-mono uppercase tracking-[0.14em]">
+            <p className="max-w-3xl">{site.footerText}</p>
           </div>
         </footer>
       </div>
@@ -986,57 +1257,5 @@ function Badge({ label, value }: { label: string; value: string }) {
       <p className="kicker text-[var(--verge-muted)]">{label}</p>
       <p className="text-lg font-extrabold text-white">{value}</p>
     </div>
-  );
-}
-
-type TimelineItem = {
-  id: string;
-  period: string;
-  title: string;
-  subtitle: string;
-  summary: string;
-  highlights: string[];
-};
-
-function TimelineColumn({
-  label,
-  items,
-}: {
-  label: string;
-  items: TimelineItem[];
-}) {
-  return (
-    <article className="story-pill interactive-card relative bg-[var(--verge-canvas)] p-5 sm:p-7">
-      <p className="kicker mb-5 text-[var(--verge-mint)]">{label}</p>
-      <div className="relative space-y-5 pl-6">
-        <span className="timeline-rail" aria-hidden="true" />
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="story-pill interactive-card relative bg-[var(--verge-slate)] p-4 sm:p-5"
-          >
-            <p className="kicker mb-3 text-[var(--verge-mint)]">
-              {item.period}
-            </p>
-            <h3 className="mb-2 text-xl font-bold leading-tight">
-              {item.title}
-            </h3>
-            <p className="mb-3 break-words text-sm text-[#d3d3d3]">
-              {item.subtitle}
-            </p>
-            <p className="mb-4 text-sm leading-relaxed text-[#ececec]">
-              {item.summary}
-            </p>
-            {item.highlights.length > 0 ? (
-              <ul className="space-y-2 text-sm text-[#d9d9d9]">
-                {item.highlights.map((highlight) => (
-                  <li key={highlight}>- {highlight}</li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-        ))}
-      </div>
-    </article>
   );
 }

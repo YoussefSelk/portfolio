@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title desc">
+  <title id="title">Youssef Selk Icon 192</title>
+  <desc id="desc">Editorial YS app icon in 192 size</desc>
+  <rect x="8" y="8" width="176" height="176" rx="36" fill="#131110" />
+  <rect x="24" y="28" width="144" height="16" fill="#ffd128" />
+  <rect x="24" y="32" width="144" height="8" fill="#000000" opacity="0.82" />
+  <path d="M36 56h24l21 30 21-30h24L96 101v43H75v-43L36 56z" fill="#c6f24e" />
+  <path
+    d="M151 68c0 9-7.4 16.4-16.4 16.4h-12c-2.8 0-5 2.2-5 5s2.2 5 5 5h12c14.7 0 26.6 11.9 26.6 26.6s-11.9 26.6-26.6 26.6H100v-18h34.6c2.8 0 5-2.2 5-5s-2.2-5-5-5h-12c-14.7 0-26.6-11.9-26.6-26.6S107.9 66 122.6 66H151z"
+    fill="#f2ede2"
+  />
+</svg>

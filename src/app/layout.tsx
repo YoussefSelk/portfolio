@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
-import { Anton, Hanken_Grotesk, Space_Mono } from "next/font/google";
+import { Fraunces, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 
 import "./globals.css";
 
-const display = Anton({
+const display = Space_Grotesk({
   variable: "--font-display",
-  weight: "400",
+  display: "swap",
   subsets: ["latin"],
 });
 
-const body = Hanken_Grotesk({
+const body = Fraunces({
   variable: "--font-body",
+  display: "swap",
   subsets: ["latin"],
 });
 
-const mono = Space_Mono({
+const mono = JetBrains_Mono({
   variable: "--font-mono",
-  weight: ["400", "700"],
+  display: "swap",
   subsets: ["latin"],
 });
 
@@ -28,11 +29,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   manifest: "/manifest.webmanifest",
   title: {
-    default: "Youssef Selk | Official Portfolio",
+    default: "Youssef Selk — Full-Stack Developer · Internship Jun 2026",
     template: "%s | Youssef Selk",
   },
   description:
-    "Official website and portfolio of Youssef Selk, full-stack developer interested in AI, Data, and secure software systems.",
+    "Portfolio of Youssef Selk: backend/full-stack projects, field-tested outcomes, and availability for internship in June 2026 then apprenticeship in September 2026.",
   applicationName: "Youssef Selk Portfolio",
   keywords: [
     "Youssef Selk",
@@ -60,9 +61,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    title: "Youssef Selk | Software Engineering Portfolio",
+    title: "Youssef Selk — Full-Stack Developer · Internship Jun 2026",
     description:
-      "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
+      "Portfolio of Youssef Selk: backend/full-stack projects, field-tested outcomes, and availability for internship in June 2026 then apprenticeship in September 2026.",
     siteName: "Youssef Selk Portfolio",
     locale: "en_US",
     images: [
@@ -76,15 +77,15 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Youssef Selk | Software Engineering Portfolio",
+    title: "Youssef Selk — Full-Stack Developer · Internship Jun 2026",
     description:
-      "Official portfolio of Youssef Selk: software engineering projects, experience, certifications, and contact information.",
+      "Portfolio of Youssef Selk: backend/full-stack projects, field-tested outcomes, and availability for internship in June 2026 then apprenticeship in September 2026.",
     images: ["/twitter-image"],
   },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    apple: "/apple-icon",
   },
   robots: {
     index: true,
@@ -109,7 +110,12 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <a href="#top" className="skip-link">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
