@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 
@@ -115,6 +116,7 @@ export default function RootLayout({
           Skip to content
         </a>
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );

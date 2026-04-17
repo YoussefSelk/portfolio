@@ -11,6 +11,7 @@
     "content:import": "node scripts/import-content-to-db.mjs"
   },
   "dependencies": {
+    "@vercel/speed-insights": "^2.0.0",
     "dotenv": "^17.2.3",
     "next": "16.2.4",
     "pg": "^8.16.3",
